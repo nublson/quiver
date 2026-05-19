@@ -44,7 +44,7 @@ export const auth = betterAuth({
     encryptOAuthTokens: true, // AES-256-GCM encrypt stored OAuth tokens
   },
 
-  trustedOrigins: ["https://quiver.nublson.com"],
+  trustedOrigins: [process.env.BASE_URL!],
 
   advanced: {
     useSecureCookies: true,

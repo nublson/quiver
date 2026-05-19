@@ -12,7 +12,7 @@ app.use(logger());
 app.use(secureHeaders());
 app.use(
   cors({
-    origin: ["https://quiver.nublson.com", "http://localhost:3000"],
+    origin: [process.env.BASE_URL!, "http://localhost:3000"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -40,7 +40,7 @@ app.onError((err, c) => {
 });
 
 // Local development server — not invoked by Vercel (which uses api/index.ts)
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
   const port = Number(process.env.PORT ?? 3001);
   serve({ fetch: app.fetch, port }, () => {
     console.log(`API running at http://localhost:${port}`);
