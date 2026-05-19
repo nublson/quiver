@@ -1,5 +1,5 @@
 {
-  "name": "cli",
+  "name": "@quiver/cli",
   "description": "CLI sync layer for agent skills",
   "version": "0.0.0",
   "author": "Nubelson Fernandes",
