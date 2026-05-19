@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file .env src/index.ts",
-    "build": "tsc --noEmit",
+    "build": "prisma generate && tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
     "db:generate": "prisma generate",
