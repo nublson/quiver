@@ -7,7 +7,7 @@ export default class Hello extends Command {
   static description = 'Say hello'
   static examples = [
     `<%= config.bin %> <%= command.id %> friend --from oclif
-hello friend from oclif! (./src/commands/hello/index.ts)
+hello friend from oclif! (./src/commands/hello.ts)
 `,
   ]
   static flags = {
@@ -17,6 +17,6 @@ hello friend from oclif! (./src/commands/hello/index.ts)
   async run(): Promise<void> {
     const {args, flags} = await this.parse(Hello)
 
-    this.log(`hello ${args.person} from ${flags.from}! (./src/commands/hello/index.ts)`)
+    this.log(`hello ${args.person} from ${flags.from}! (./src/commands/hello.ts)`)
   }
 }

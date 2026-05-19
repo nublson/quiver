@@ -21,7 +21,8 @@ pnpm test
 
 # CLI
 node packages/cli/bin/run.js --help
-node packages/cli/bin/dev.js hello friend -f oclif   # dev, no build
+pnpm --filter cli dev hello friend --from oclif   # dev, no build
+# or: node packages/cli/bin/dev.js hello friend --from oclif
 ```
 
 ## Git workflow
