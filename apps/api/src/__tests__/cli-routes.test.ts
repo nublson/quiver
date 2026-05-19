@@ -2,135 +2,107 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import { Hono } from "hono";
 
 const mocks = vi.hoisted(() => ({
-  createCliSession: vi.fn(),
-  completeCliSession: vi.fn(),
-  getCliSession: vi.fn(),
-  deleteCliSession: vi.fn(),
   getSession: vi.fn(),
+  signInSocial: vi.fn(),
+  deviceVerify: vi.fn(),
 }));
 
-vi.mock("../db.js", () => ({ prisma: {} }));
 vi.mock("../auth.js", () => ({
-  auth: { handler: vi.fn(), api: { getSession: mocks.getSession } },
-}));
-vi.mock("../lib/cli-sessions.js", () => ({
-  createCliSession: mocks.createCliSession,
-  completeCliSession: mocks.completeCliSession,
-  getCliSession: mocks.getCliSession,
-  deleteCliSession: mocks.deleteCliSession,
+  auth: {
+    api: {
+      getSession: mocks.getSession,
+      signInSocial: mocks.signInSocial,
+      deviceVerify: mocks.deviceVerify,
+    },
+  },
 }));
 
 import { cliRoutes } from "../routes/cli.js";
 
 const app = new Hono().route("/", cliRoutes);
 
-beforeEach(() => vi.clearAllMocks());
-
-// ─── GET /auth/login ──────────────────────────────────────────────────────────
-
-describe("GET /auth/login", () => {
-  it("returns 400 when state is missing", async () => {
-    const res = await app.request("/auth/login");
-    expect(res.status).toBe(400);
-    const body = (await res.json()) as { error: string };
-    expect(body.error).toMatch(/state/i);
-  });
-
-  it("returns 400 when state is too short (< 16 chars)", async () => {
-    const res = await app.request("/auth/login?state=tooshort");
-    expect(res.status).toBe(400);
-  });
-
-  it("returns 400 when state contains invalid characters", async () => {
-    const res = await app.request("/auth/login?state=invalid%20state%20padded%20ok");
-    expect(res.status).toBe(400);
-  });
-
-  it("creates a cli session and redirects to GitHub sign-in for a valid state", async () => {
-    mocks.createCliSession.mockResolvedValue(undefined);
-    const state = "a".repeat(32);
-    const res = await app.request(`/auth/login?state=${state}`);
-    expect(mocks.createCliSession).toHaveBeenCalledWith(state);
-    expect(res.status).toBe(302);
-    const location = res.headers.get("Location") ?? "";
-    expect(location).toContain("/auth/sign-in/social");
-    expect(location).toContain("provider=github");
-    expect(location).toContain(encodeURIComponent(state));
-  });
+beforeEach(() => {
+  vi.clearAllMocks();
+  process.env.BETTER_AUTH_URL = "http://localhost:3001";
 });
 
-// ─── GET /auth/complete ───────────────────────────────────────────────────────
-
-describe("GET /auth/complete", () => {
-  it("returns 400 HTML when cli_state is missing", async () => {
-    const res = await app.request("/auth/complete");
+describe("GET /device", () => {
+  it("returns 400 HTML when user_code is missing", async () => {
+    const res = await app.request("/device");
     expect(res.status).toBe(400);
     expect(res.headers.get("content-type")).toContain("text/html");
+    expect(await res.text()).toContain("Missing code");
   });
 
-  it("returns 401 HTML when no active session exists", async () => {
+  it("returns 400 HTML when user_code format is invalid", async () => {
+    const res = await app.request("/device?user_code=bad!");
+    expect(res.status).toBe(400);
+    expect(await res.text()).toContain("Invalid code");
+  });
+
+  it("redirects through GitHub when there is no session", async () => {
     mocks.getSession.mockResolvedValue(null);
-    const res = await app.request("/auth/complete?cli_state=valid-state-here-1234");
-    expect(res.status).toBe(401);
-    expect(res.headers.get("content-type")).toContain("text/html");
-  });
-
-  it("completes the cli session and returns success HTML when session exists", async () => {
-    mocks.getSession.mockResolvedValue({
-      session: { token: "sess-tok" },
-      user: { id: "uid-1", name: "Test User" },
-    });
-    mocks.completeCliSession.mockResolvedValue(undefined);
-    const res = await app.request("/auth/complete?cli_state=valid-state-here-1234");
-    expect(res.status).toBe(200);
-    expect(res.headers.get("content-type")).toContain("text/html");
-    expect(await res.text()).toContain("logged in");
-    expect(mocks.completeCliSession).toHaveBeenCalledWith(
-      "valid-state-here-1234",
-      "sess-tok",
-      "uid-1",
-      "Test User"
+    mocks.signInSocial.mockResolvedValue(
+      new Response(null, {
+        status: 302,
+        headers: { Location: "https://example.test/oauth-start" },
+      })
     );
-  });
-});
 
-// ─── GET /auth/cli-token ──────────────────────────────────────────────────────
-
-describe("GET /auth/cli-token", () => {
-  it("returns 400 when state is missing", async () => {
-    const res = await app.request("/auth/cli-token");
-    expect(res.status).toBe(400);
-  });
-
-  it("returns 404 when session is not found or expired", async () => {
-    mocks.getCliSession.mockResolvedValue(null);
-    const res = await app.request("/auth/cli-token?state=somestate");
-    expect(res.status).toBe(404);
-  });
-
-  it("returns 202 pending while OAuth is in progress", async () => {
-    mocks.getCliSession.mockResolvedValue({ token: null, username: null, userId: null });
-    const res = await app.request("/auth/cli-token?state=somestate");
-    expect(res.status).toBe(202);
-    expect(await res.json()).toEqual({ status: "pending" });
-  });
-
-  it("returns 200 with credentials and fires session cleanup on completion", async () => {
-    mocks.getCliSession.mockResolvedValue({
-      token: "bearer-tok",
-      username: "johndoe",
-      userId: "uid-1",
+    const code = "ABCDEFGH";
+    const res = await app.request(`/device?user_code=${code}`);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe("https://example.test/oauth-start");
+    expect(mocks.signInSocial).toHaveBeenCalledWith({
+      body: {
+        provider: "github",
+        callbackURL: `http://localhost:3001/device?user_code=${encodeURIComponent(code)}`,
+      },
+      headers: expect.any(Headers),
+      asResponse: true,
     });
-    mocks.deleteCliSession.mockResolvedValue(undefined);
-    const res = await app.request("/auth/cli-token?state=somestate");
+  });
+
+  it("returns approval HTML when session exists and code is pending", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { token: "sess" },
+      user: { id: "u1", name: "Sam", email: "sam@example.com" },
+    });
+    mocks.deviceVerify.mockResolvedValue({ user_code: "ABCDEFGH", status: "pending" });
+
+    const res = await app.request("/device?user_code=abcdefgh");
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      token: "bearer-tok",
-      username: "johndoe",
-      userId: "uid-1",
+    const html = await res.text();
+    expect(html).toContain("Authorize Quiver CLI");
+    expect(html).toContain("/auth/device/approve");
+    expect(html).toContain("/auth/device/deny");
+    expect(mocks.deviceVerify).toHaveBeenCalledWith({
+      query: { user_code: "ABCDEFGH" },
+      headers: expect.any(Headers),
     });
-    // deleteCliSession is fire-and-forget; flush the microtask queue before asserting
-    await new Promise((r) => setTimeout(r, 10));
-    expect(mocks.deleteCliSession).toHaveBeenCalledWith("somestate");
+  });
+
+  it("returns 400 HTML when verification fails", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { token: "sess" },
+      user: { id: "u1", name: "Sam", email: "sam@example.com" },
+    });
+    mocks.deviceVerify.mockRejectedValue(new Error("invalid_request"));
+
+    const res = await app.request("/device?user_code=ABCDEFGH");
+    expect(res.status).toBe(400);
+    expect(await res.text()).toContain("Verification failed");
+  });
+
+  it("returns 400 HTML when status is not pending", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { token: "sess" },
+      user: { id: "u1", name: "Sam", email: "sam@example.com" },
+    });
+    mocks.deviceVerify.mockResolvedValue({ user_code: "ABCDEFGH", status: "approved" });
+
+    const res = await app.request("/device?user_code=ABCDEFGH");
+    expect(res.status).toBe(400);
+    expect(await res.text()).toContain("Already processed");
   });
 });
