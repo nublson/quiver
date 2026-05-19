@@ -26,17 +26,19 @@ Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, 
 |---|---|
 | Monorepo | Turborepo |
 | CLI | TypeScript + oclif |
-| Web + Docs | Next.js + Tailwind + Fumadocs |
-| Auth | better-auth (GitHub OAuth) |
+| Web + Docs | Next.js + Tailwind + Fumadocs (purely static — no API routes) |
+| API | Hono — better-auth + REST endpoints for the CLI |
+| Auth | better-auth (GitHub OAuth), runs in `apps/api` |
 | Database | Supabase (Postgres + JSONB) |
-| Deploy | Vercel (web) + npm (CLI) |
+| Deploy | Vercel (web + api) + npm (CLI) |
 
 ## Repo structure
 
 ```
 quiver/
   apps/
-    web/        # Next.js — marketing (/) + docs (/docs)
+    web/        # Next.js — marketing (/) + docs (/docs), purely static
+    api/        # Hono — better-auth + REST API for the CLI
   packages/
     cli/        # TypeScript + oclif
 ```
@@ -198,8 +200,11 @@ Running `npx skills rm` removes skill files but leaves stale entries in `~/.agen
 **Sync is additive only (v1).**
 Quiver never deletes or overwrites local skills during sync. Conflict resolution is out of scope for v1.
 
-**better-auth owns authentication.**
-better-auth handles GitHub OAuth and session management. Its tables live in the same Supabase Postgres database. `skill_locks` and `sync_events` reference users by better-auth's user id.
+**`apps/api` is the CLI's backend; `apps/web` is purely static.**
+The web app (Next.js) contains no API routes — it is marketing and docs only. All server-side logic (auth, lock storage, sync events) lives in `apps/api` (Hono), deployed as a separate Vercel project. This means the site can be iterated on or go down without affecting the CLI, and the CLI's backend surface area stays explicit and small.
+
+**better-auth owns authentication and runs in `apps/api`.**
+better-auth handles GitHub OAuth and session management via the Hono adapter. Its tables live in the same Supabase Postgres database. `skill_locks` and `sync_events` reference users by better-auth's user id. The GitHub OAuth callback URL points to `apps/api`, not `apps/web`.
 
 ---
 
