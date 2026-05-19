@@ -27,6 +27,7 @@
     "oclif": "^4",
     "shx": "^0.3.3",
     "ts-node": "^10",
+    "tsx": "^4",
     "typescript": "^5"
   },
   "engines": {
@@ -65,7 +66,8 @@
     "directory": "packages/cli"
   },
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
+    "build": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b",
+    "dev": "node ./bin/dev.js",
     "lint": "eslint",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "pnpm run lint",
