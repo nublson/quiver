@@ -23,16 +23,16 @@
 - [x] Install and configure better-auth with the Hono adapter
 - [x] Wire GitHub OAuth provider
 - [x] Mount better-auth handler at `/auth/*`
-- [x] Add `GET /auth/cli-token?state=<state>` — issues a short-lived token after OAuth completes
+- [x] Device Authorization plugin (`POST /auth/device/code`, `POST /auth/device/token`, `/auth/device/*`) + browser verification at `GET /device`
 - [x] Configure Prisma v7 with `@prisma/adapter-pg` → Supabase Postgres
 - [x] Set environment variables (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `DATABASE_URL`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`)
 - [x] Run `pnpm db:migrate --name init` against real Supabase
 - [ ] Deploy `apps/api` to Vercel (OAuth callback must be reachable at `api.quiver.nublson.com`)
 
 **CLI — `quiver login`**
-- [ ] Generate a random `state` value
-- [ ] Open browser to `https://api.quiver.nublson.com/auth/signin/github?state=<state>`
-- [ ] Poll `GET /auth/cli-token?state=<state>` until a token is returned (or timeout)
+- [ ] Call `POST /auth/device/code` with `client_id` (matches `QUIVER_DEVICE_CLIENT_ID`, default `quiver-cli`)
+- [ ] Print user code / open `verification_uri_complete` in the browser (`GET /device?user_code=...`)
+- [ ] Poll `POST /auth/device/token` until `access_token` is returned (RFC 8628)
 - [ ] Store token + GitHub username in `~/.quiver/credentials.json`
 - [ ] Print confirmation (`Logged in as @username`)
 
