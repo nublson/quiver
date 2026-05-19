@@ -23,9 +23,8 @@ app.get("/health", (c) =>
   c.json({ status: "ok", ts: new Date().toISOString() })
 );
 
-// CLI OAuth routes must be registered BEFORE the better-auth catch-all.
-// Hono resolves routes in registration order — the wildcard /auth/** would
-// consume /auth/login, /auth/complete, and /auth/cli-token otherwise.
+// Device verification page (`GET /device`) must be registered BEFORE the better-auth catch-all.
+// Hono resolves routes in registration order — the wildcard /auth/** would consume plugin routes otherwise.
 app.route("/", cliRoutes);
 
 // better-auth handles all remaining /auth/* paths:

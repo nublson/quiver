@@ -1,117 +1,184 @@
 import { Hono } from "hono";
 import { auth } from "../auth.js";
-import {
-  createCliSession,
-  completeCliSession,
-  getCliSession,
-  deleteCliSession,
-} from "../lib/cli-sessions.js";
+import { isAPIError } from "better-auth/api";
 
 export const cliRoutes = new Hono();
 
-/**
- * GET /auth/login?state=<state>
- *
- * Step 1 of CLI OAuth flow. Creates a pending cli_session keyed by the
- * state value, then redirects to better-auth's GitHub sign-in with a
- * callbackURL that returns control to /auth/complete after OAuth finishes.
- */
-cliRoutes.get("/auth/login", async (c) => {
-  const state = c.req.query("state");
+/** Default device plugin user codes are 8 chars from charset excluding 0,O,1,I. */
+const USER_CODE_PATTERN = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/;
 
-  if (!state || !/^[a-zA-Z0-9_-]{16,128}$/.test(state)) {
-    return c.json({ error: "Missing or invalid state parameter" }, 400);
-  }
-
-  await createCliSession(state);
-
-  const callbackURL = `/auth/complete?cli_state=${encodeURIComponent(state)}`;
-  const signInURL = new URL(`${process.env.BETTER_AUTH_URL}/auth/sign-in/social`);
-  signInURL.searchParams.set("provider", "github");
-  signInURL.searchParams.set("callbackURL", callbackURL);
-
-  return c.redirect(signInURL.toString(), 302);
-});
-
-/**
- * GET /auth/complete?cli_state=<state>
- *
- * Step 5 of CLI OAuth flow. better-auth redirects here after GitHub OAuth
- * completes and has already set the session cookie. Read the session, store
- * the token keyed by state, and show a success page so the user can close
- * the browser tab.
- */
-cliRoutes.get("/auth/complete", async (c) => {
-  const cliState = c.req.query("cli_state");
-
-  if (!cliState) {
-    return c.html("<h1>Error</h1><p>Missing cli_state parameter.</p>", 400);
-  }
-
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
-
-  if (!session?.session || !session?.user) {
-    return c.html(
-      "<h1>Authentication failed</h1><p>Please run <code>quiver login</code> again.</p>",
-      401
-    );
-  }
-
-  // user.name is the GitHub display name; the CLI will use it as the display username.
-  // The exact GitHub login handle (@username) lives in the account table — can be
-  // fetched and stored here in a future iteration if the handle matters.
-  await completeCliSession(
-    cliState,
-    session.session.token,
-    session.user.id,
-    session.user.name
-  );
-
-  return c.html(`<!DOCTYPE html>
+function htmlShell(title: string, inner: string): string {
+  const safeTitle = escapeHtml(title);
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiver — Authenticated</title>
+  <title>${safeTitle}</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 80px auto; padding: 0 24px; text-align: center; }
-    h1 { font-size: 1.5rem; margin-bottom: 8px; }
-    p { color: #666; }
+    body { font-family: system-ui, sans-serif; max-width: 520px; margin: 48px auto; padding: 0 24px; }
+    h1 { font-size: 1.35rem; margin-bottom: 12px; }
+    p { color: #444; line-height: 1.5; }
+    code { font-size: 0.95em; }
+    .actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    button { padding: 10px 18px; font-size: 1rem; cursor: pointer; border-radius: 8px; border: none; }
+    .approve { background: #238636; color: #fff; }
+    .deny { background: #f0f0f0; color: #222; }
+    #msg { margin-top: 16px; font-weight: 500; }
+    .error { color: #b42318; }
+    .ok { color: #146234; }
   </style>
 </head>
 <body>
-  <h1>You're logged in!</h1>
-  <p>Return to your terminal. You can close this tab.</p>
+${inner}
 </body>
-</html>`);
-});
+</html>`;
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 /**
- * GET /auth/cli-token?state=<state>
+ * GET /device?user_code=<code>
  *
- * Step 6: CLI polls this endpoint until the token is ready.
- * 202 = OAuth still pending
- * 200 = complete, returns { token, username, userId }
- * 404 = state expired or unknown
+ * Browser verification URI for RFC 8628 device authorization (better-auth plugin).
+ * Unauthenticated users are redirected through GitHub OAuth, then return here to claim and approve.
  */
-cliRoutes.get("/auth/cli-token", async (c) => {
-  const state = c.req.query("state");
+cliRoutes.get("/device", async (c) => {
+  const raw = c.req.query("user_code");
+  if (!raw?.trim()) {
+    return c.html(
+      htmlShell(
+        "Quiver — Device code",
+        `<h1>Missing code</h1><p>Open the link from your terminal or include <code>?user_code=</code>.</p>`
+      ),
+      400
+    );
+  }
 
-  if (!state) return c.json({ error: "Missing state parameter" }, 400);
+  const formatted = raw.trim().replace(/-/g, "").toUpperCase();
+  if (!USER_CODE_PATTERN.test(formatted)) {
+    return c.html(
+      htmlShell(
+        "Quiver — Invalid code",
+        `<h1>Invalid code</h1><p>The device code format is not valid.</p>`
+      ),
+      400
+    );
+  }
 
-  const cliSession = await getCliSession(state);
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
-  if (!cliSession) return c.json({ error: "Session not found or expired" }, 404);
-  if (!cliSession.token) return c.json({ status: "pending" }, 202);
+  if (!session?.user) {
+    const base = process.env.BETTER_AUTH_URL;
+    const callbackURL = `${base}/device?user_code=${encodeURIComponent(formatted)}`;
 
-  // Fire-and-forget cleanup — don't block the response
-  void deleteCliSession(state).catch((err: unknown) =>
-    console.error("[cli-sessions] cleanup failed:", err)
-  );
+    try {
+      return await auth.api.signInSocial({
+        body: { provider: "github", callbackURL },
+        headers: c.req.raw.headers,
+        asResponse: true,
+      });
+    } catch (err) {
+      console.error("[device] signInSocial failed:", err);
+      return c.html(
+        htmlShell(
+          "Quiver — Sign-in error",
+          `<h1>Could not start sign-in</h1><p>Please try again from your terminal.</p>`
+        ),
+        502
+      );
+    }
+  }
 
-  return c.json({
-    token: cliSession.token,
-    username: cliSession.username,
-    userId: cliSession.userId,
-  });
+  try {
+    const verify = await auth.api.deviceVerify({
+      query: { user_code: formatted },
+      headers: c.req.raw.headers,
+    });
+
+    if (verify.status !== "pending") {
+      return c.html(
+        htmlShell(
+          "Quiver — Device authorization",
+          `<h1>Already processed</h1><p>This code is no longer pending (status: <code>${escapeHtml(verify.status)}</code>).</p>`
+        ),
+        400
+      );
+    }
+
+    const displayName = escapeHtml(session.user.name || session.user.email);
+    const userCodeJson = JSON.stringify(formatted);
+
+    return c.html(
+      htmlShell(
+        "Quiver — Authorize device",
+        `<h1>Authorize Quiver CLI</h1>
+<p>Signed in as <strong>${displayName}</strong>.</p>
+<p>Approve this device to finish CLI login.</p>
+<div class="actions">
+  <button type="button" class="approve" id="btn-approve">Approve</button>
+  <button type="button" class="deny" id="btn-deny">Deny</button>
+</div>
+<p id="msg"></p>
+<script>
+  const userCode = ${userCodeJson};
+  const msg = document.getElementById('msg');
+  function show(text, cls) {
+    msg.textContent = text;
+    msg.className = cls || '';
+  }
+  async function postJson(url) {
+    const r = await fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userCode }),
+    });
+    let data = {};
+    try { data = await r.json(); } catch (_) {}
+    if (!r.ok) {
+      const errText = data.error_description || data.message || ('HTTP ' + r.status);
+      throw new Error(errText);
+    }
+    return data;
+  }
+  document.getElementById('btn-approve').onclick = async () => {
+    try {
+      await postJson('/auth/device/approve');
+      show('Approved. You can close this tab and return to the terminal.', 'ok');
+    } catch (e) {
+      show(e.message || String(e), 'error');
+    }
+  };
+  document.getElementById('btn-deny').onclick = async () => {
+    try {
+      await postJson('/auth/device/deny');
+      show('Denied. Close this tab.', 'error');
+    } catch (e) {
+      show(e.message || String(e), 'error');
+    }
+  };
+</script>`
+      )
+    );
+  } catch (err: unknown) {
+    const description = isAPIError(err)
+      ? err.message
+      : err instanceof Error
+        ? err.message
+        : "Verification failed";
+    return c.html(
+      htmlShell(
+        "Quiver — Verification failed",
+        `<h1>Verification failed</h1><p>${escapeHtml(description)}</p>`
+      ),
+      400
+    );
+  }
 });
