@@ -64,6 +64,7 @@
   "scripts": {
     "build": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b",
     "dev": "node ./bin/dev.js",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "pnpm run lint",
