@@ -1,7 +1,10 @@
 import { betterAuth } from "better-auth";
-import { bearer } from "better-auth/plugins/bearer";
+import { bearer, deviceAuthorization } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./db.js";
+
+/** Allowed OAuth device-flow client_id values from `POST /auth/device/code`. */
+const QUIVER_DEVICE_CLIENT_ID = process.env.QUIVER_DEVICE_CLIENT_ID ?? "quiver-cli";
 
 export const auth = betterAuth({
   // BETTER_AUTH_SECRET and BETTER_AUTH_URL are read automatically from env vars
@@ -18,6 +21,12 @@ export const auth = betterAuth({
 
   plugins: [
     bearer(), // enables session tokens as Bearer tokens for CLI API calls (Phase 2+)
+    deviceAuthorization({
+      verificationUri: `${process.env.BETTER_AUTH_URL}/device`,
+      validateClient: async (clientId) => clientId === QUIVER_DEVICE_CLIENT_ID,
+      // better-auth v1.6.x plugin schema validates `schema` as required; `{}` merges with defaults.
+      schema: {},
+    }),
   ],
 
   rateLimit: {
@@ -26,7 +35,7 @@ export const auth = betterAuth({
     window: 10,
     max: 100,
     customRules: {
-      "/auth/sign-in/social": { window: 60, max: 20 },
+      "/auth/device/code": { window: 60, max: 20 },
     },
   },
 
@@ -44,7 +53,10 @@ export const auth = betterAuth({
     encryptOAuthTokens: true, // AES-256-GCM encrypt stored OAuth tokens
   },
 
-  trustedOrigins: [process.env.BASE_URL!],
+  trustedOrigins: [
+    process.env.BASE_URL!,
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
+  ],
 
   advanced: {
     useSecureCookies: true,
