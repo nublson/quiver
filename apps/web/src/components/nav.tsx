@@ -61,7 +61,7 @@ export default function Nav() {
               lineHeight: 1.4,
             }}
           >
-            v{CLI_VERSION} · beta
+            v{CLI_VERSION}
           </span>
         </div>
 

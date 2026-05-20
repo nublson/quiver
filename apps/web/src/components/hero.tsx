@@ -50,7 +50,7 @@ export default function Hero() {
                   display: "inline-block",
                 }}
               />
-              v{CLI_VERSION} · public beta · agent-agnostic
+              v{CLI_VERSION} · agent-agnostic
             </div>
 
             <h1
