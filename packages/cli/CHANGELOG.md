@@ -1,5 +1,11 @@
 # quiver
 
+## 0.2.2
+
+### Patch Changes
+
+- 09c30d6: Merge pull request #22 from nublson/fix/sync-skill-name
+
 ## 0.2.1
 
 ### Patch Changes
