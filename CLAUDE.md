@@ -10,7 +10,7 @@ Skills installed globally via `npx skills add -g` are available across all AI ag
 
 Quiver is **not** a package manager. It does not install, update, or manage skills directly. That is the job of `npx skills`.
 
-Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, pushes it to a cloud database, and replays missing installs on other devices.
+Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, pushes it to a GitHub Gist, and replays missing installs on other devices.
 
 ## What quiver is not
 
@@ -27,9 +27,9 @@ Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, 
 | Monorepo | Turborepo |
 | CLI | TypeScript + oclif |
 | Web + Docs | Next.js + Tailwind + Fumadocs (purely static — no API routes) |
-| API | Hono — better-auth + REST endpoints for the CLI |
+| API | Hono — better-auth only (auth-only, no lock data) |
 | Auth | better-auth (GitHub OAuth), runs in `apps/api` |
-| Database | Supabase (Postgres + JSONB) |
+| Storage | GitHub Gist (one secret Gist per user, managed by the CLI) |
 | Deploy | Vercel (web + api) + npm (CLI) |
 
 ## Repo structure
@@ -38,7 +38,7 @@ Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, 
 quiver/
   apps/
     web/        # Next.js — marketing (/) + docs (/docs), purely static
-    api/        # Hono — better-auth + REST API for the CLI
+    api/        # Hono — better-auth only (auth)
   packages/
     cli/        # TypeScript + oclif
 ```
@@ -52,7 +52,7 @@ Authenticates the user via GitHub OAuth (better-auth).
 Stores the session token locally (e.g. `~/.quiver/credentials.json`).
 
 ### `quiver push`
-Reads `~/.agents/.skill-lock.json` and uploads it to the cloud database for the current user.
+Reads `~/.agents/.skill-lock.json` and uploads it to the user's secret GitHub Gist.
 Run this after installing or removing global skills with `npx skills`.
 
 ```
@@ -63,7 +63,7 @@ quiver push
 ```
 
 ### `quiver sync`
-Fetches the remote lock file from the cloud, diffs it against the local `~/.agents/.skill-lock.json`, and runs `npx skills add -g` for each skill that is missing locally.
+Fetches the remote lock file from the user's GitHub Gist, diffs it against the local `~/.agents/.skill-lock.json`, and runs `npx skills add -g` for each skill that is missing locally.
 Sync only adds — it never overwrites locally modified skills.
 
 ```
@@ -73,7 +73,7 @@ quiver sync
 ```
 
 ### `quiver remove <skill-name>`
-Removes a skill locally, fixes the lock file entry (bug in `npx skills rm` — it leaves stale entries), and pushes the updated lock to the cloud.
+Removes a skill locally, fixes the lock file entry (bug in `npx skills rm` — it leaves stale entries), and pushes the updated lock to the GitHub Gist.
 
 ```
 quiver remove frontend-design
@@ -95,12 +95,11 @@ quiver status
 
 ## How sync works
 
-1. Fetch `lock_data` from Supabase for the current user
+1. Fetch lock file from the user's GitHub Gist
 2. Read local `~/.agents/.skill-lock.json` (may not exist on a fresh device)
 3. Compute diff: skills in remote lock that are absent locally
 4. For each missing skill, run `npx skills add <sourceUrl> --skill <skillPath> -g`
 5. Write updated `~/.agents/.skill-lock.json`
-6. Record sync event in `sync_events` table
 
 Sync is **additive only**. It never removes or overwrites local skills.
 
@@ -148,27 +147,25 @@ Relevant fields quiver uses during sync:
 
 ---
 
-## Database schema
+## Storage
 
-Auth-managed users are handled by better-auth. The following tables live in Supabase Postgres alongside better-auth's own tables.
+Quiver uses **GitHub Gist** as its storage backend. There is no database for skill data — only better-auth's own tables in Supabase Postgres (for session management).
 
-```sql
--- one row per user, stores the full lock file
-create table skill_locks (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    text not null unique,   -- references better-auth user id
-  lock_data  jsonb not null,
-  updated_at timestamptz default now()
-);
+### GitHub Gist
 
--- per-device sync history (optional for v1)
-create table sync_events (
-  id           uuid primary key default gen_random_uuid(),
-  user_id      text not null,        -- references better-auth user id
-  device_name  text not null,
-  synced_at    timestamptz default now(),
-  skills_added text[]
-);
+One secret Gist per user, named `quiver-skill-lock.json`. Created automatically on first `quiver push`. The full `.skill-lock.json` content is stored as the Gist file body.
+
+The Gist ID is written to `~/.quiver/credentials.json` after creation and reused on all subsequent pushes and syncs.
+
+### `credentials.json` shape
+
+```json
+{
+  "token": "<better-auth session token>",
+  "username": "githubusername",
+  "githubToken": "<github oauth token with gist scope>",
+  "gistId": "<id of the user's quiver-skill-lock.json gist>"
+}
 ```
 
 ---
@@ -200,11 +197,14 @@ Running `npx skills rm` removes skill files but leaves stale entries in `~/.agen
 **Sync is additive only (v1).**
 Quiver never deletes or overwrites local skills during sync. Conflict resolution is out of scope for v1.
 
-**`apps/api` is the CLI's backend; `apps/web` is purely static.**
-The web app (Next.js) contains no API routes — it is marketing and docs only. All server-side logic (auth, lock storage, sync events) lives in `apps/api` (Hono), deployed as a separate Vercel project. This means the site can be iterated on or go down without affecting the CLI, and the CLI's backend surface area stays explicit and small.
+**`apps/api` is auth-only; `apps/web` is purely static.**
+The web app (Next.js) contains no API routes — it is marketing and docs only. `apps/api` (Hono) handles only authentication via better-auth. There are no lock storage or sync event endpoints — the CLI talks directly to the GitHub Gist API for all skill data. This keeps the backend surface area minimal and removes the need for any database tables beyond what better-auth requires.
+
+**GitHub Gist is the storage backend.**
+Each user's lock file lives in a single secret Gist named `quiver-skill-lock.json`. The CLI manages it directly using the GitHub token obtained during login (with `gist` scope). No server proxy, no database table. Gist revision history provides a free audit log of every push.
 
 **better-auth owns authentication and runs in `apps/api`.**
-better-auth handles GitHub OAuth and session management via the Hono adapter. Its tables live in the same Supabase Postgres database. `skill_locks` and `sync_events` reference users by better-auth's user id. The GitHub OAuth callback URL points to `apps/api`, not `apps/web`.
+better-auth handles GitHub OAuth and session management via the Hono adapter. Its tables live in Supabase Postgres. The GitHub OAuth flow also yields a token with `gist` scope, which the CLI stores in `~/.quiver/credentials.json` and uses directly for all Gist operations.
 
 ---
 
