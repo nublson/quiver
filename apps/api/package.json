@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "tsx watch --env-file .env src/index.ts",
-    "build": "prisma generate && tsc --noEmit",
+    "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
