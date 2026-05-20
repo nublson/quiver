@@ -1,5 +1,11 @@
 # quiver
 
+## 0.2.1
+
+### Patch Changes
+
+- 7c2d132: Merge pull request #21 from nublson/feat/github-native-device-flow
+
 ## 0.2.0
 
 ### Minor Changes
