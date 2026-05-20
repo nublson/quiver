@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { bearer, deviceAuthorization } from "better-auth/plugins";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./db.js";
+import { pool } from "./db.js";
 
 /** Allowed OAuth device-flow client_id values from `POST /auth/device/code`. */
 const QUIVER_DEVICE_CLIENT_ID = process.env.QUIVER_DEVICE_CLIENT_ID ?? "quiver-cli";
@@ -10,7 +9,7 @@ export const auth = betterAuth({
   // BETTER_AUTH_SECRET and BETTER_AUTH_URL are read automatically from env vars
   basePath: "/auth",
 
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
+  database: pool,
 
   socialProviders: {
     github: {
