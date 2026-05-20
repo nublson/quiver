@@ -52,7 +52,7 @@ export default class Sync extends Command {
 
   async run(): Promise<void> {
     const creds = await readCredentials()
-    if (!creds?.githubToken || !creds.token) {
+    if (!creds?.githubToken) {
       this.error('Run `quiver login` first.')
     }
 

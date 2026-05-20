@@ -163,17 +163,6 @@ describe('push command', () => {
     expect(errorSpy).toHaveBeenCalledWith('Run `quiver login` first.')
   })
 
-  it('errors when session token is missing', async () => {
-    credMocks.readCredentials.mockResolvedValue({
-      githubToken: GITHUB_TOKEN,
-      username: 'testuser',
-    })
-
-    const {cmd, errorSpy} = makeCmd()
-    await expect(cmd.run()).rejects.toThrow()
-    expect(errorSpy).toHaveBeenCalledWith('Run `quiver login` first.')
-  })
-
   it('errors with helpful message when no global skills are installed', async () => {
     credMocks.readCredentials.mockResolvedValue(credentials)
     lockMocks.readLockFile.mockRejectedValue(

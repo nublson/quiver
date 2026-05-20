@@ -2,11 +2,9 @@
 export interface Credentials {
   /** ID of the user's quiver-skill-lock.json secret Gist. Written on first push. */
   gistId?: string;
-  /** GitHub OAuth access token with 'gist' scope */
+  /** GitHub OAuth access token with 'gist' and 'read:user' scope */
   githubToken: string;
-  /** better-auth session token (Bearer token for API calls) */
-  token: string;
-  /** GitHub username */
+  /** GitHub username (login) */
   username: string;
 }
 

@@ -1,4 +1,6 @@
-import {env} from 'node:process'
+/** GitHub OAuth App client ID — public, safe to ship in the CLI binary. */
+export const GITHUB_CLIENT_ID = 'Ov23lidpCJ0kYOt8v6fi'
 
-/** Quiver API base URL. Override with QUIVER_API_URL (env or packages/cli/.env in dev). */
-export const API_BASE = env.QUIVER_API_URL ?? 'https://api.quiver.nublson.com'
+/** GitHub device flow endpoints (RFC 8628). */
+export const GITHUB_DEVICE_CODE_URL = 'https://github.com/login/device/code'
+export const GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token'
