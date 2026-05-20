@@ -13,7 +13,7 @@
 
 ---
 
-## Phase 1 — Authentication (`quiver login`) 🚧
+## Phase 1 — Authentication (`quiver login`) ✅
 
 > A user can authenticate from the terminal. No web UI — the browser is only used as the OAuth handshake surface. All server logic lives in `apps/api`.
 
@@ -50,7 +50,7 @@
 **`apps/api` — Gist token exchange**
 
 - [x] After device auth completes, request a GitHub token with `gist` scope in addition to `read:user`
-- [ ] Return GitHub token to the CLI at login time (wired during `quiver login` — Phase 1)
+- [x] Return GitHub token to the CLI at login time (wired during `quiver login` — Phase 1)
 
 **CLI — Gist utilities (`src/lib/gist.ts`)**
 
@@ -69,13 +69,13 @@
 
 **CLI — `quiver login`**
 
-- [ ] Call `POST /auth/device/code` with `client_id` (matches `QUIVER_DEVICE_CLIENT_ID`, default `quiver-cli`)
-- [ ] Print user code / open `verification_uri_complete` in the browser (`GET /device?user_code=...`)
-- [ ] Poll `POST /auth/device/token` until `access_token` is returned (RFC 8628)
-- [ ] Store token + GitHub username + `githubToken` in `~/.quiver/credentials.json`
-- [ ] Print confirmation (`Logged in as @username`)
+- [x] Call `POST /auth/device/code` with `client_id` (matches `QUIVER_DEVICE_CLIENT_ID`, default `quiver-cli`)
+- [x] Print user code / open `verification_uri_complete` in the browser (`GET /device?user_code=...`)
+- [x] Poll `POST /auth/device/token` until `access_token` is returned (RFC 8628)
+- [x] Store token + GitHub username + `githubToken` in `~/.quiver/credentials.json`
+- [x] Print confirmation (`Logged in as @username`)
 
-**Deliverable:** `quiver login` works end-to-end on a real machine.
+**Deliverable:** `quiver login` works end-to-end on a real machine. ✅
 
 ---
 
