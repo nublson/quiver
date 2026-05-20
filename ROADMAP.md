@@ -79,7 +79,7 @@
 
 ---
 
-## Phase 2 — Push (`quiver push`)
+## Phase 2 — Push (`quiver push`) ✅
 
 > A user can upload their local skill lock to GitHub Gist after installing skills.
 
@@ -99,7 +99,7 @@
 
 ---
 
-## Phase 3 — Sync (`quiver sync`)
+## Phase 3 — Sync (`quiver sync`) ✅
 
 > A user on a new device can install all their skills with one command.
 
@@ -112,11 +112,25 @@
 - [x] Write updated `~/.agents/.skill-lock.json`
 - [x] Print summary (`3 skills added, 2 already up to date`)
 
-**Deliverable:** On a fresh machine — `quiver login && quiver sync` — restores all skills.
+---
+
+## Phase 4 — Release
+
+> Ship quiver as a public npm package. Core workflow (`login`, `push`, `sync`) is complete and ready for users.
+
+- [ ] Remove oclif placeholder commands (`hello`, `hello world`)
+- [ ] Set correct `version`, `description`, and `author` in `packages/cli/package.json`
+- [ ] Update repo-root `README.md` — install + quickstart
+- [ ] `npm pack` dry-run — verify tarball contents
+- [ ] Publish `quiver` to npm
+- [ ] Tag `v0.1.0` + create GitHub release with changelog
+- [ ] Smoke-test on a clean machine: `npm i -g quiver && quiver login && quiver sync`
+
+**Deliverable:** `quiver` is live on npm and usable by anyone. On a fresh machine — `quiver login && quiver sync` — restores all skills.
 
 ---
 
-## Phase 4 — Status & Remove
+## Phase 5 — Status & Remove
 
 > The two utility commands that round out the daily workflow.
 
@@ -139,7 +153,7 @@
 
 ---
 
-## Phase 5 — Web (Marketing + Docs)
+## Phase 6 — Web (Marketing + Docs)
 
 > Public-facing site. No auth, no dashboard — purely informational.
 
@@ -160,20 +174,6 @@
 - [ ] FAQ (quiver vs npx skills, what quiver does not do, multiple devices)
 
 **Deliverable:** Someone landing on the site understands what quiver is and can get started.
-
----
-
-## Phase 6 — Release
-
-> Ship quiver as a public npm package.
-
-- [ ] Remove oclif placeholder commands (`hello`, `hello world`)
-- [ ] Set correct `version`, `description`, and `author` in `packages/cli/package.json`
-- [ ] Update repo-root `README.md` — install + quickstart
-- [ ] `npm pack` dry-run — verify tarball contents
-- [ ] Publish `quiver` to npm
-- [ ] Tag `v0.1.0` + create GitHub release with changelog
-- [ ] Smoke-test on a clean machine: `npm i -g quiver && quiver login && quiver sync`
 
 ---
 
