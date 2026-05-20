@@ -1,7 +1,7 @@
 usequiver
 =================
 
-CLI sync layer for agent skills
+Keep your AI agent skills in sync across every device
 
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
