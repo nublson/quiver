@@ -120,7 +120,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div style={{ marginTop: 8, position: "relative" }}>
+          <div style={{ marginTop: 8, position: "relative", minWidth: 0, overflow: "hidden" }}>
             <Terminal chrome="minimal" autoLoop />
           </div>
         </div>

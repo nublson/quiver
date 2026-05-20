@@ -317,12 +317,12 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
           </div>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", fontFamily: "var(--font-jetbrains-mono)", fontSize: 11.5 }}>
+        <div style={{ display: "flex", alignItems: "center", fontFamily: "var(--font-jetbrains-mono)", fontSize: 11.5, minWidth: 0, flex: 1 }}>
           {SCENE_ORDER.map((k, i) => (
             <span
               key={k}
               onClick={() => reset(i)}
-              title={`Run scene: ${SCENES[k].label}`}
+              title={SCENES[k].host}
               style={{
                 padding: "6px 14px 5px",
                 color: i === sceneIdx ? "var(--fg)" : "var(--fg-dim)",
@@ -331,6 +331,8 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 7,
+                minWidth: 0,
+                flex: 1,
               }}
             >
               <span
@@ -340,9 +342,12 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
                   borderRadius: 999,
                   background: i === sceneIdx ? "var(--accent)" : "var(--fg-dim)",
                   display: "inline-block",
+                  flexShrink: 0,
                 }}
               />
-              {SCENES[k].host}
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {SCENES[k].host}
+              </span>
             </span>
           ))}
         </div>

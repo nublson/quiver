@@ -114,7 +114,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 900px) {
   .nav-links          { display: none !important; }
-  .hero-grid-side     { grid-template-columns: 1fr !important; }
+  .hero-grid-side     { grid-template-columns: minmax(0, 1fr) !important; }
   .hiw-grid           { grid-template-columns: 1fr !important; gap: 32px !important; }
   .pain-grid          { grid-template-columns: 1fr !important; }
   .pain-arrow         { transform: rotate(90deg); justify-self: start; }
