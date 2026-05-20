@@ -13,7 +13,7 @@
   "dependencies": {
     "better-auth": "^1.2.7",
     "hono": "^4.7.11",
-    "@hono/node-server": "^1.14.4",
+    "@hono/node-server": "^2.0.0",
     "@vercel/functions": "^1",
     "pg": "^8.16.0"
   },
