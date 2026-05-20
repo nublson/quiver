@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 const credMocks = vi.hoisted(() => ({
   readCredentials: vi.fn(),
-  writeCredentials: vi.fn().mockResolvedValue(undefined),
+  writeCredentials: vi.fn().mockResolvedValue(),
 }))
 
 vi.mock('../../src/lib/credentials.js', () => ({
@@ -11,7 +11,7 @@ vi.mock('../../src/lib/credentials.js', () => ({
   writeCredentials: credMocks.writeCredentials,
 }))
 
-vi.mock('open', () => ({default: vi.fn().mockResolvedValue(undefined)}))
+vi.mock('open', () => ({default: vi.fn().mockResolvedValue()}))
 
 const {default: Login} = await import('../../src/commands/login.js')
 
@@ -45,7 +45,7 @@ function githubUserBody() {
   return {login: USERNAME}
 }
 
-type MockResponse = {body?: unknown; text?: string; ok: boolean; status: number}
+type MockResponse = {body?: unknown; ok: boolean; status: number; text?: string;}
 
 function makeFetchMock(...responses: MockResponse[]) {
   let call = 0
@@ -61,7 +61,7 @@ function makeFetchMock(...responses: MockResponse[]) {
 }
 
 function okText(text: string): MockResponse {
-  return {text, ok: true, status: 200}
+  return {ok: true, status: 200, text}
 }
 
 function okJson(body: unknown): MockResponse {
@@ -69,7 +69,7 @@ function okJson(body: unknown): MockResponse {
 }
 
 function errText(status: number, text = ''): MockResponse {
-  return {text, ok: false, status}
+  return {ok: false, status, text}
 }
 
 /** Creates a command instance with log and error spied on. */
