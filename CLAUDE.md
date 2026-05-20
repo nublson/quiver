@@ -31,6 +31,7 @@ Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, 
 | Auth | better-auth (GitHub OAuth), runs in `apps/api` |
 | Storage | GitHub Gist (one secret Gist per user, managed by the CLI) |
 | Deploy | Vercel (web + api) + npm (CLI) |
+| Release | Changesets (`@changesets/cli`) — versioning, changelog, npm publish |
 
 ## Repo structure
 
@@ -205,6 +206,38 @@ Each user's lock file lives in a single secret Gist named `quiver-skill-lock.jso
 
 **better-auth owns authentication and runs in `apps/api`.**
 better-auth handles GitHub OAuth and session management via the Hono adapter. Its tables live in Supabase Postgres. The GitHub OAuth flow also yields a token with `gist` scope, which the CLI stores in `~/.quiver/credentials.json` and uses directly for all Gist operations.
+
+---
+
+## Release workflow
+
+Quiver uses **Changesets** (`@changesets/cli`) for versioning, changelog generation, and npm publishing. It integrates natively with pnpm workspaces and Turborepo.
+
+### Daily workflow
+
+```bash
+# after making changes, describe what changed and pick a bump type
+pnpm changeset        # patch | minor | major
+
+# commit the generated .changeset/*.md file with your PR
+```
+
+### Publishing
+
+Merging to `main` triggers the Changesets GitHub Action, which:
+
+1. Opens a "Version PR" — bumps `packages/cli/package.json` and updates `CHANGELOG.md`
+2. Merging the Version PR runs `pnpm changeset publish` — tags the commit and publishes `packages/cli` to npm
+
+Only `packages/cli` is published. `apps/web` and `apps/api` are excluded automatically because they have no `publishConfig` in their `package.json`.
+
+### Key files
+
+| File | Purpose |
+|---|---|
+| `.changeset/config.json` | Changesets config (scope: `packages/cli` only) |
+| `.changeset/*.md` | Per-PR change descriptions (committed, consumed on publish) |
+| `packages/cli/CHANGELOG.md` | Auto-generated; also used as the GitHub release body |
 
 ---
 

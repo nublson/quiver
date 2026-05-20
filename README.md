@@ -1,34 +1,60 @@
 # Quiver
 
-CLI sync layer for global agent skills. See [CLAUDE.md](./CLAUDE.md) for product and architecture details.
+Sync your global AI agent skills across devices.
 
-## Monorepo
+```bash
+npm install -g quiver
+```
+
+## Quickstart
+
+```bash
+# 1. Authenticate with GitHub
+quiver login
+
+# 2. After installing skills on any device, push the lock
+npx skills add https://github.com/anthropics/skills --skill frontend-design -g
+quiver push
+
+# 3. On a new device — restore everything in one shot
+quiver login
+quiver sync
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `quiver login` | Authenticate via GitHub OAuth |
+| `quiver push` | Upload your local skill lock to GitHub Gist |
+| `quiver sync` | Install any skills missing from the remote lock |
+| `quiver remove <skill>` | Remove a skill locally and sync the deletion |
+
+## How it works
+
+Quiver reads `~/.agents/.skill-lock.json` (maintained by `npx skills`) and syncs it to a secret GitHub Gist. On a new device, `quiver sync` fetches that Gist and reinstalls any missing skills. Sync is additive — it never removes or overwrites local skills.
+
+---
+
+## Development
 
 | Path | Description |
 |------|-------------|
 | `apps/web` | Next.js marketing site and docs |
 | `packages/cli` | `quiver` CLI (oclif + TypeScript) |
 
-## Development
-
 ```bash
 pnpm install
 pnpm dev          # all apps
-pnpm dev --filter=web
 pnpm build
 pnpm lint
 pnpm test
 
 # CLI
 node packages/cli/bin/run.js --help
-pnpm --filter cli dev hello friend --from oclif   # dev, no build
-# or: node packages/cli/bin/dev.js hello friend --from oclif
+pnpm --filter cli dev push   # dev mode, no build
 ```
-
-## Git workflow
-
-Use `develop` for integration and open PRs from `feature/*` or `fix/*` branches. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 **Branches:** `main` (production) · `develop` (staging) · `feature/*` / `fix/*` (work)
 
-Current work should happen on a feature branch created from `develop`, not on `main` or `develop` directly.
+See [CLAUDE.md](./CLAUDE.md) for full architecture and design decisions.
