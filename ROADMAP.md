@@ -105,12 +105,12 @@
 
 **CLI — `quiver sync`**
 
-- [ ] Call `readGist(gistId)` — fetch remote lock from GitHub Gist
-- [ ] Read local `~/.agents/.skill-lock.json` (handle missing file gracefully)
-- [ ] Diff: collect skills in remote that are absent locally
-- [ ] For each missing skill, run `npx skills add <sourceUrl> --skill <skillPath> -g`
-- [ ] Write updated `~/.agents/.skill-lock.json`
-- [ ] Print summary (`3 skills added, 2 already up to date`)
+- [x] Call `readGist(gistId)` — fetch remote lock from GitHub Gist
+- [x] Read local `~/.agents/.skill-lock.json` (handle missing file gracefully)
+- [x] Diff: collect skills in remote that are absent locally
+- [x] For each missing skill, run `npx skills add <sourceUrl> --skill <skillPath> -g -y`
+- [x] Write updated `~/.agents/.skill-lock.json`
+- [x] Print summary (`3 skills added, 2 already up to date`)
 
 **Deliverable:** On a fresh machine — `quiver login && quiver sync` — restores all skills.
 
