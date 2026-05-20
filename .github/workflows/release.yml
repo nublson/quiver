@@ -152,3 +152,16 @@ jobs:
         run: pnpm changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./packages/cli/package.json').version")
+          TAG="usequiver@${VERSION}"
+          # Extract the latest changelog entry (between first and second ## headings)
+          NOTES=$(awk '/^## /{i++} i==1{print} i==2{exit}' packages/cli/CHANGELOG.md | tail -n +2)
+          gh release create "$TAG" \
+            --title "usequiver v${VERSION}" \
+            --notes "$NOTES" \
+            --repo "${{ github.repository }}"
