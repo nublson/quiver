@@ -32,7 +32,7 @@ USAGE
 * [`quiver help [COMMAND]`](#quiver-help-command)
 * [`quiver login`](#quiver-login)
 * [`quiver push`](#quiver-push)
-* [`quiver remove NAME`](#quiver-remove-name)
+* [`quiver remove SKILL_NAME`](#quiver-remove-skill_name)
 * [`quiver sync`](#quiver-sync)
 
 ## `quiver help [COMMAND]`
@@ -89,16 +89,16 @@ EXAMPLES
 
 _See code: [src/commands/push.ts](https://github.com/nublson/quiver/blob/v0.1.0/src/commands/push.ts)_
 
-## `quiver remove NAME`
+## `quiver remove SKILL_NAME`
 
 Remove a global skill and sync the removal to GitHub Gist
 
 ```
 USAGE
-  $ quiver remove NAME
+  $ quiver remove SKILL_NAME
 
 ARGUMENTS
-  NAME  Skill name to remove
+  SKILL_NAME  Skill name to remove
 
 DESCRIPTION
   Remove a global skill and sync the removal to GitHub Gist

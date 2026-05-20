@@ -35,14 +35,14 @@ export function runSkillsRm(skillPath: string): Promise<void> {
 
 export default class Remove extends Command {
   static args = {
-    name: Args.string({description: 'Skill name to remove', required: true}),
+    skill_name: Args.string({description: 'Skill name to remove', required: true}),
   }
   static description = 'Remove a global skill and sync the removal to GitHub Gist'
   static examples = ['<%= config.bin %> remove frontend-design']
 
   async run(): Promise<void> {
     const {args} = await this.parse(Remove)
-    const skillName = args.name
+    const skillName = args.skill_name
 
     const creds = await readCredentials()
     if (!creds?.githubToken || !creds.token) {
