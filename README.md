@@ -3,7 +3,7 @@
 Sync your global AI agent skills across devices.
 
 ```bash
-npm install -g quiver
+npm install -g usequiver
 ```
 
 ## Quickstart

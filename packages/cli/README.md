@@ -1,12 +1,12 @@
-cli
+usequiver
 =================
 
 CLI sync layer for agent skills
 
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/cli.svg)](https://npmjs.org/package/cli)
-[![Downloads/week](https://img.shields.io/npm/dw/cli.svg)](https://npmjs.org/package/cli)
+[![Version](https://img.shields.io/npm/v/usequiver.svg)](https://npmjs.org/package/usequiver)
+[![Downloads/week](https://img.shields.io/npm/dw/usequiver.svg)](https://npmjs.org/package/usequiver)
 
 
 <!-- toc -->
@@ -16,11 +16,11 @@ CLI sync layer for agent skills
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g quiver
+$ npm install -g usequiver
 $ quiver COMMAND
 running command...
 $ quiver (--version)
-quiver/0.0.0 darwin-arm64 node-v25.2.1
+usequiver/0.1.0 darwin-arm64 node-v25.2.1
 $ quiver --help [COMMAND]
 USAGE
   $ quiver COMMAND
@@ -70,7 +70,7 @@ EXAMPLES
   $ quiver login
 ```
 
-_See code: [src/commands/login.ts](https://github.com/nublson/quiver/blob/v0.0.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/nublson/quiver/blob/v0.1.0/src/commands/login.ts)_
 
 ## `quiver push`
 
@@ -87,7 +87,7 @@ EXAMPLES
   $ quiver push
 ```
 
-_See code: [src/commands/push.ts](https://github.com/nublson/quiver/blob/v0.0.0/src/commands/push.ts)_
+_See code: [src/commands/push.ts](https://github.com/nublson/quiver/blob/v0.1.0/src/commands/push.ts)_
 
 ## `quiver remove NAME`
 
@@ -107,7 +107,7 @@ EXAMPLES
   $ quiver remove frontend-design
 ```
 
-_See code: [src/commands/remove.ts](https://github.com/nublson/quiver/blob/v0.0.0/src/commands/remove.ts)_
+_See code: [src/commands/remove.ts](https://github.com/nublson/quiver/blob/v0.1.0/src/commands/remove.ts)_
 
 ## `quiver sync`
 
@@ -124,5 +124,5 @@ EXAMPLES
   $ quiver sync
 ```
 
-_See code: [src/commands/sync.ts](https://github.com/nublson/quiver/blob/v0.0.0/src/commands/sync.ts)_
+_See code: [src/commands/sync.ts](https://github.com/nublson/quiver/blob/v0.1.0/src/commands/sync.ts)_
 <!-- commandsstop -->
