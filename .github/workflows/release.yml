@@ -114,7 +114,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build CLI
-        run: pnpm build --filter=quiver
+        run: pnpm build --filter=usequiver
 
       - name: Publish to npm
         run: pnpm changeset publish
