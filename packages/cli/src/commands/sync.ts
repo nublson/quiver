@@ -7,17 +7,6 @@ import {readCredentials, writeCredentials} from '../lib/credentials.js'
 import {findOrCreateGist, readGist} from '../lib/gist.js'
 import {readLockFileIfExists} from '../lib/lock-file.js'
 
-/** Derive CLI `--skill` name from lock `skillPath` (e.g. skills/foo/SKILL.md → foo). */
-export function skillNameFromSkillPath(skillPath: string): string {
-  const segments = skillPath.split('/').filter(Boolean)
-  const folder = segments.at(-2)
-  if (!folder) {
-    throw new Error(`Invalid skillPath in lock file: ${skillPath}`)
-  }
-
-  return folder
-}
-
 function runSkillsAdd(sourceUrl: string, skillName: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(
@@ -86,8 +75,10 @@ export default class Sync extends Command {
         throw new Error(`Remote lock entry for "${name}" is missing sourceUrl or skillPath.`)
       }
 
-      const skillName = skillNameFromSkillPath(entry.skillPath)
-      await runSkillsAdd(entry.sourceUrl, skillName)
+      // Use the lock file entry key as the skill name (e.g. "vercel-react-best-practices"),
+      // not the folder derived from skillPath (e.g. "react-best-practices") — they can differ
+      // when the skill registry uses a vendor-prefixed name.
+      await runSkillsAdd(entry.sourceUrl, name)
       added++
       await installAt(index + 1)
     }

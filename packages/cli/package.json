@@ -57,7 +57,9 @@
     "plugins": [
       "@oclif/plugin-help"
     ],
-    "topicSeparator": " "
+    "topicSeparator": " ",
+    "additionalVersionFlags": ["-v"],
+    "additionalHelpFlags": ["-h"]
   },
   "repository": {
     "type": "git",
