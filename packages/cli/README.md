@@ -3,6 +3,28 @@ usequiver
 
 Keep your AI agent skills in sync across every device
 
+## Why Quiver?
+
+You set up your AI agent skills once — then you switch machines and they're gone.
+
+Quiver fixes that. Run `quiver push` after installing skills on any machine.
+Run `quiver sync` on a new device to restore everything in one command.
+
+Your skills stay in a **private GitHub Gist** you own. No new account, no service,
+no proprietary backend. Just your GitHub account and the skills you already have.
+
+Works with **Claude Code, Cursor, Gemini CLI, GitHub Copilot** — any agent that
+reads from the global skill lock (`~/.agents/.skill-lock.json`).
+
+## Quick Start
+
+```sh
+npm install -g usequiver
+
+quiver login   # connect your GitHub account
+quiver push    # save your skills to your private Gist
+quiver sync    # restore on any new machine
+```
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/usequiver.svg)](https://npmjs.org/package/usequiver)

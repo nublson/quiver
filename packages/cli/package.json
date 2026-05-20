@@ -38,11 +38,18 @@
   "homepage": "https://github.com/nublson/quiver",
   "keywords": [
     "quiver",
+    "usequiver",
     "skills",
+    "agent-skills",
+    "skill-sync",
     "ai",
-    "agent",
+    "ai-agent",
+    "claude-code",
+    "cursor",
+    "gemini-cli",
     "sync",
-    "cli"
+    "cli",
+    "developer-tools"
   ],
   "publishConfig": {
     "access": "public"
