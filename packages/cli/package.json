@@ -1,7 +1,7 @@
 {
   "name": "usequiver",
   "description": "Keep your AI agent skills in sync across every device",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Nubelson Fernandes",
   "bin": {
     "quiver": "./bin/run.js"

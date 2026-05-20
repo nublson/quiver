@@ -1,5 +1,11 @@
 # quiver
 
+## 0.2.3
+
+### Patch Changes
+
+- 9d38ff3: Update package description to "Keep your AI agent skills in sync across every device"
+
 ## 0.2.2
 
 ### Patch Changes
