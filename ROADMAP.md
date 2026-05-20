@@ -86,14 +86,14 @@
 **CLI — shared utilities**
 
 - [x] `src/lib/credentials.ts` — read token, GitHub token, Gist ID, and user info from `~/.quiver/credentials.json`
-- [ ] `src/lib/lock-file.ts` — read `~/.agents/.skill-lock.json`
+- [x] `src/lib/lock-file.ts` — read `~/.agents/.skill-lock.json`
 
 **CLI — `quiver push`**
 
-- [ ] Read local `~/.agents/.skill-lock.json`
-- [ ] Call `findOrCreateGist()` — resolve or create the user's secret Gist, persist `gistId` to credentials
-- [ ] Call `writeGist(gistId, lockData)` — patch the Gist with current lock content
-- [ ] Print count of skills pushed and timestamp
+- [x] Read local `~/.agents/.skill-lock.json`
+- [x] Call `findOrCreateGist()` — resolve or create the user's secret Gist, persist `gistId` to credentials
+- [x] Call `writeGist(gistId, lockData)` — patch the Gist with current lock content
+- [x] Print count of skills pushed and timestamp
 
 **Deliverable:** `npx skills add ... -g && quiver push` uploads the lock to GitHub Gist.
 
