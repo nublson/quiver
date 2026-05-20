@@ -1,8 +1,43 @@
+import { symmetricDecrypt } from "better-auth/crypto";
 import { Hono } from "hono";
 import { auth } from "../auth.js";
 import { isAPIError } from "better-auth/api";
+import { pool } from "../db.js";
 
 export const cliRoutes = new Hono();
+
+/**
+ * GET /cli/github-token
+ *
+ * Protected by the better-auth Bearer session token. Decrypts the stored GitHub
+ * OAuth access token, fetches the GitHub login via the GitHub API, and returns
+ * both to the CLI so it can persist credentials locally.
+ */
+cliRoutes.get("/cli/github-token", async (c) => {
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  if (!session?.user) return c.json({ error: "Unauthorized" }, 401);
+
+  const result = await pool.query<{ access_token: string }>(
+    `SELECT access_token FROM "account" WHERE user_id = $1 AND provider_id = 'github' LIMIT 1`,
+    [session.user.id],
+  );
+  const encryptedToken = result.rows[0]?.access_token;
+  if (!encryptedToken) return c.json({ error: "GitHub account not found" }, 404);
+
+  const githubToken = await symmetricDecrypt({
+    data: encryptedToken,
+    key: process.env.BETTER_AUTH_SECRET!,
+  });
+
+  // user.name is the display name — the login (e.g. "nublson") requires the GitHub API
+  const ghRes = await fetch("https://api.github.com/user", {
+    headers: { Authorization: `Bearer ${githubToken}`, "User-Agent": "quiver-cli" },
+  });
+  if (!ghRes.ok) return c.json({ error: "Failed to fetch GitHub user" }, 502);
+  const { login } = (await ghRes.json()) as { login: string };
+
+  return c.json({ githubToken, username: login });
+});
 
 /** Default device plugin user codes are 8 chars from charset excluding 0,O,1,I. */
 const USER_CODE_PATTERN = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/;

@@ -3,6 +3,7 @@
 > Build order: each phase produces something usable that the next phase builds on.
 
 ## Phase 0 — Foundation ✅
+
 > Monorepo scaffolding. Everything needed to start building.
 
 - [x] Turborepo + pnpm workspace
@@ -12,14 +13,17 @@
 
 ---
 
-## Phase 1 — Authentication (`quiver login`) 🚧
+## Phase 1 — Authentication (`quiver login`) ✅
+
 > A user can authenticate from the terminal. No web UI — the browser is only used as the OAuth handshake surface. All server logic lives in `apps/api`.
 
 **`apps/api` — scaffold**
+
 - [x] Create `apps/api` — Hono app, TypeScript, Vercel deployment config
 - [x] Add to Turborepo pipeline
 
 **`apps/api` — better-auth + pg**
+
 - [x] Install and configure better-auth with the Hono adapter
 - [x] Wire GitHub OAuth provider
 - [x] Mount better-auth handler at `/auth/*`
@@ -27,52 +31,81 @@
 - [x] Configure `pg.Pool` → Supabase Postgres (better-auth accepts it natively)
 - [x] Set environment variables (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `DATABASE_URL`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`)
 - [x] Apply initial schema migrations against real Supabase
-- [ ] Deploy `apps/api` to Vercel (OAuth callback must be reachable at `api.quiver.nublson.com`)
+- [x] Deploy `apps/api` to Vercel (OAuth callback must be reachable at `api.quiver.nublson.com`)
+
+---
+
+### Phase 1.5 — Storage Architecture Switch ✅
+
+> Switch from Supabase + `apps/api` lock endpoints to GitHub Gist as the storage backend. Quiver is a personal CLI tool with no server-side data needs — Gist is simpler and removes the database entirely.
+
+**`apps/api` — remove lock infrastructure**
+
+- [x] Remove `skill_locks` table — never built; Supabase schema is auth-only
+- [x] Remove `sync_events` table — never built
+- [x] Remove `POST /locks` and `GET /locks` endpoints — never built
+- [x] Remove `DATABASE_URL` dependency from lock-related code — no lock code existed
+- [x] Remove Supabase client package — was never added
+
+**`apps/api` — Gist token exchange**
+
+- [x] After device auth completes, request a GitHub token with `gist` scope in addition to `read:user`
+- [x] Return GitHub token to the CLI at login time (wired during `quiver login` — Phase 1)
+
+**CLI — Gist utilities (`src/lib/gist.ts`)**
+
+- [x] `findOrCreateGist()` — list user's gists, find one named `quiver-skill-lock.json`, create it as secret if absent; store Gist ID in `~/.quiver/credentials.json`
+- [x] `readGist(gistId)` — fetch and parse the Gist content as a lock file
+- [x] `writeGist(gistId, lockData)` — patch the Gist with updated lock content
+
+**CLI — update `~/.quiver/credentials.json` shape**
+
+- [x] Add `githubToken` field (used exclusively for Gist API calls)
+- [x] Add `gistId` field (written on first push, reused on all subsequent operations)
+
+**Deliverable:** CLI can read and write lock data via GitHub Gist. `apps/api` is auth-only — no database tables for skill data. ✅
+
+---
 
 **CLI — `quiver login`**
-- [ ] Call `POST /auth/device/code` with `client_id` (matches `QUIVER_DEVICE_CLIENT_ID`, default `quiver-cli`)
-- [ ] Print user code / open `verification_uri_complete` in the browser (`GET /device?user_code=...`)
-- [ ] Poll `POST /auth/device/token` until `access_token` is returned (RFC 8628)
-- [ ] Store token + GitHub username in `~/.quiver/credentials.json`
-- [ ] Print confirmation (`Logged in as @username`)
 
-**Deliverable:** `quiver login` works end-to-end on a real machine.
+- [x] Call `POST /auth/device/code` with `client_id` (matches `QUIVER_DEVICE_CLIENT_ID`, default `quiver-cli`)
+- [x] Print user code / open `verification_uri_complete` in the browser (`GET /device?user_code=...`)
+- [x] Poll `POST /auth/device/token` until `access_token` is returned (RFC 8628)
+- [x] Store token + GitHub username + `githubToken` in `~/.quiver/credentials.json`
+- [x] Print confirmation (`Logged in as @username`)
+
+**Deliverable:** `quiver login` works end-to-end on a real machine. ✅
 
 ---
 
 ## Phase 2 — Push (`quiver push`)
-> A user can upload their local skill lock to the cloud after installing skills.
 
-**Supabase**
-- [ ] Create Supabase project
-- [ ] Apply `skill_locks` table schema (`id`, `user_id`, `lock_data jsonb`, `updated_at`)
-- [ ] Configure RLS — users can only read/write their own row
-
-**`apps/api` — locks endpoint**
-- [ ] `POST /locks` — upsert `lock_data` for the authenticated user (Bearer token auth)
+> A user can upload their local skill lock to GitHub Gist after installing skills.
 
 **CLI — shared utilities**
-- [ ] `src/lib/credentials.ts` — read token + user info from `~/.quiver/credentials.json`
+
+- [x] `src/lib/credentials.ts` — read token, GitHub token, Gist ID, and user info from `~/.quiver/credentials.json`
 - [ ] `src/lib/lock-file.ts` — read `~/.agents/.skill-lock.json`
-- [ ] `src/lib/api.ts` — typed fetch wrapper pointing to `apps/api` (attaches Bearer token, handles 401)
 
 **CLI — `quiver push`**
+
 - [ ] Read local `~/.agents/.skill-lock.json`
-- [ ] `POST /api/locks` with the full lock file as `lock_data`
+- [ ] Call `findOrCreateGist()` — resolve or create the user's secret Gist, persist `gistId` to credentials
+- [ ] Call `writeGist(gistId, lockData)` — patch the Gist with current lock content
 - [ ] Print count of skills pushed and timestamp
 
-**Deliverable:** `npx skills add ... -g && quiver push` uploads the lock to the cloud.
+**Deliverable:** `npx skills add ... -g && quiver push` uploads the lock to GitHub Gist.
 
 ---
 
 ## Phase 3 — Sync (`quiver sync`)
+
 > A user on a new device can install all their skills with one command.
 
-**`apps/api` — locks endpoint**
-- [ ] `GET /locks` — return current `lock_data` for the authenticated user
-
 **CLI — `quiver sync`**
-- [ ] `GET /api/locks` — fetch remote lock
+
+- [ ] Call `readGist(gistId)` — fetch remote lock from GitHub Gist
 - [ ] Read local `~/.agents/.skill-lock.json` (handle missing file gracefully)
 - [ ] Diff: collect skills in remote that are absent locally
 - [ ] For each missing skill, run `npx skills add <sourceUrl> --skill <skillPath> -g`
@@ -84,38 +117,41 @@
 ---
 
 ## Phase 4 — Status & Remove
+
 > The two utility commands that round out the daily workflow.
 
 **CLI — `quiver status`**
-- [ ] `GET /api/locks` — fetch remote lock
+
+- [ ] Call `readGist(gistId)` — fetch remote lock from GitHub Gist
 - [ ] Read local lock file
 - [ ] Compute three sets: local only / remote only / in sync
 - [ ] Print formatted diff (mirrors the CLAUDE.md example output)
 
 **CLI — `quiver remove <skill-name>`**
+
 - [ ] Find the skill entry in local lock file
 - [ ] Run `npx skills rm <skillPath>` (removes skill files)
 - [ ] Remove the stale entry from `~/.agents/.skill-lock.json` (fixes the npx skills rm bug)
 - [ ] Call push logic to sync the removal to the cloud
 - [ ] Print confirmation
 
-**`apps/api` — sync events endpoint**
-- [ ] `POST /sync-events` — record device name + skills added (used by sync)
-
 **Deliverable:** Full CLI surface is functional. Users can manage their skill set entirely from the terminal.
 
 ---
 
 ## Phase 5 — Web (Marketing + Docs)
+
 > Public-facing site. No auth, no dashboard — purely informational.
 
 **Marketing (`/`)**
+
 - [ ] Hero — one-line value prop + install snippet (`npm install -g quiver`)
 - [ ] How it works — 3-step visual (push → cloud → sync)
 - [ ] Command reference quick-look
 - [ ] CTA to docs
 
 **Docs (`/docs`) — Fumadocs**
+
 - [ ] Install and configure Fumadocs in `apps/web`
 - [ ] Getting Started (install, login, first push, sync on a new device)
 - [ ] Commands — `login`, `push`, `sync`, `status`, `remove`
@@ -128,6 +164,7 @@
 ---
 
 ## Phase 6 — Release
+
 > Ship quiver as a public npm package.
 
 - [ ] Remove oclif placeholder commands (`hello`, `hello world`)
