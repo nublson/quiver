@@ -1,6 +1,6 @@
 {
   "name": "usequiver",
-  "description": "CLI sync layer for agent skills",
+  "description": "Keep your AI agent skills in sync across every device",
   "version": "0.2.2",
   "author": "Nubelson Fernandes",
   "bin": {
@@ -38,11 +38,18 @@
   "homepage": "https://github.com/nublson/quiver",
   "keywords": [
     "quiver",
+    "usequiver",
     "skills",
+    "agent-skills",
+    "skill-sync",
     "ai",
-    "agent",
+    "ai-agent",
+    "claude-code",
+    "cursor",
+    "gemini-cli",
     "sync",
-    "cli"
+    "cli",
+    "developer-tools"
   ],
   "publishConfig": {
     "access": "public"
