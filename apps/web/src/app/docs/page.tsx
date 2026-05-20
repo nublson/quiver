@@ -1,6 +1,3 @@
-import Nav from "@/components/nav";
-import Footer from "@/components/footer";
-
 export const metadata = {
   title: "Docs — Quiver",
   description: "Documentation for Quiver, the CLI sync layer for AI agent skills.",
@@ -10,10 +7,8 @@ export default function DocsPage() {
   return (
     <>
       <div className="grid-bg" />
-      <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-        <Nav />
-
-        <main style={{ flex: 1, maxWidth: 1240, margin: "0 auto", padding: "96px 32px", width: "100%" }}>
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "96px 32px", width: "100%" }}>
           <div
             style={{
               display: "flex",
@@ -89,9 +84,7 @@ export default function DocsPage() {
           >
             View on GitHub →
           </a>
-        </main>
-
-        <Footer />
+        </div>
       </div>
     </>
   );
