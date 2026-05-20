@@ -1,7 +1,7 @@
 {
   "name": "quiver",
   "description": "CLI sync layer for agent skills",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": "Nubelson Fernandes",
   "bin": {
     "quiver": "./bin/run.js"
