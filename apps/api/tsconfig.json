@@ -10,6 +10,6 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["src/**/*", "api/**/*", "prisma.config.ts"],
-  "exclude": ["node_modules", "src/generated"]
+  "include": ["src/**/*", "api/**/*"],
+  "exclude": ["node_modules"]
 }
