@@ -1,5 +1,6 @@
 import Terminal from "@/components/terminal";
 import InstallPill from "@/components/install-pill";
+import { CLI_VERSION } from "@/lib/version";
 
 function ArrowIcon() {
   return (
@@ -49,7 +50,7 @@ export default function Hero() {
                   display: "inline-block",
                 }}
               />
-              v0.2.4 · public beta · agent-agnostic
+              v{CLI_VERSION} · public beta · agent-agnostic
             </div>
 
             <h1

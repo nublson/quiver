@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CLI_VERSION } from "@/lib/version";
 
 function GithubIcon() {
   return (
@@ -60,7 +61,7 @@ export default function Nav() {
               lineHeight: 1.4,
             }}
           >
-            v0.2.4 · beta
+            v{CLI_VERSION} · beta
           </span>
         </div>
 
