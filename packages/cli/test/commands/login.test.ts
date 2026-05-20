@@ -15,49 +15,61 @@ vi.mock('open', () => ({default: vi.fn().mockResolvedValue()}))
 
 const {default: Login} = await import('../../src/commands/login.js')
 
-const SESSION_TOKEN = 'sess_abc'
 const GITHUB_TOKEN = 'ghp_tok'
 const USERNAME = 'testuser'
 
-/** A device code fetch response with interval:0 so polling is immediate. */
-function deviceCodeBody() {
-  return {
+/** URL-encoded device code response from GitHub (interval:0 so polling is immediate). */
+function deviceCodeText() {
+  return new URLSearchParams({
     device_code: 'dev123',
-    expires_in: 300,
-    interval: 0,
+    expires_in: '300',
+    interval: '0',
     user_code: 'USR1CODE',
-    verification_uri: 'http://api.test/device',
-    verification_uri_complete: 'http://api.test/device?user_code=USR1CODE',
-  }
+    verification_uri: 'https://github.com/login/device',
+    verification_uri_complete: 'https://github.com/login/device?user_code=USR1CODE',
+  }).toString()
 }
 
-function tokenBody(token: string) {
-  return {access_token: token}
+/** URL-encoded successful token response from GitHub. */
+function tokenText() {
+  return new URLSearchParams({access_token: GITHUB_TOKEN}).toString()
 }
 
-function githubTokenBody() {
-  return {githubToken: GITHUB_TOKEN, username: USERNAME}
+/** URL-encoded error responses from GitHub. */
+function errorText(code: string) {
+  return new URLSearchParams({error: code}).toString()
 }
 
-function makeFetchMock(...responses: {body: unknown; ok: boolean; status: number}[]) {
+/** GitHub API user response (JSON). */
+function githubUserBody() {
+  return {login: USERNAME}
+}
+
+type MockResponse = {body?: unknown; ok: boolean; status: number; text?: string;}
+
+function makeFetchMock(...responses: MockResponse[]) {
   let call = 0
   return vi.fn().mockImplementation(() => {
     const r = responses[Math.min(call++, responses.length - 1)]
     return Promise.resolve({
-      json: () => Promise.resolve(r.body),
+      json: () => Promise.resolve(r.body ?? {}),
       ok: r.ok,
       status: r.status,
-      text: () => Promise.resolve(JSON.stringify(r.body)),
+      text: () => Promise.resolve(r.text ?? JSON.stringify(r.body ?? {})),
     })
   })
 }
 
-function ok(body: unknown) {
+function okText(text: string): MockResponse {
+  return {ok: true, status: 200, text}
+}
+
+function okJson(body: unknown): MockResponse {
   return {body, ok: true, status: 200}
 }
 
-function err(status: number, body: unknown = {}) {
-  return {body, ok: false, status}
+function errText(status: number, text = ''): MockResponse {
+  return {ok: false, status, text}
 }
 
 /** Creates a command instance with log and error spied on. */
@@ -82,22 +94,35 @@ describe('login command', () => {
 
   it('full happy path — writes credentials and logs username', async () => {
     credMocks.readCredentials.mockResolvedValue(null)
-    vi.stubGlobal('fetch', makeFetchMock(ok(deviceCodeBody()), ok(tokenBody(SESSION_TOKEN)), ok(githubTokenBody())))
+    vi.stubGlobal(
+      'fetch',
+      makeFetchMock(
+        okText(deviceCodeText()),   // POST github.com/login/device/code
+        okText(tokenText()),        // POST github.com/login/oauth/access_token
+        okJson(githubUserBody()),   // GET api.github.com/user
+      ),
+    )
 
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
     expect(credMocks.writeCredentials).toHaveBeenCalledWith({
       githubToken: GITHUB_TOKEN,
-      token: SESSION_TOKEN,
       username: USERNAME,
     })
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(`@${USERNAME}`))
   })
 
   it('shows re-auth message when already logged in', async () => {
-    credMocks.readCredentials.mockResolvedValue({githubToken: 'g', token: 'old', username: 'prev'})
-    vi.stubGlobal('fetch', makeFetchMock(ok(deviceCodeBody()), ok(tokenBody(SESSION_TOKEN)), ok(githubTokenBody())))
+    credMocks.readCredentials.mockResolvedValue({githubToken: 'g', username: 'prev'})
+    vi.stubGlobal(
+      'fetch',
+      makeFetchMock(
+        okText(deviceCodeText()),
+        okText(tokenText()),
+        okJson(githubUserBody()),
+      ),
+    )
 
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
@@ -108,7 +133,7 @@ describe('login command', () => {
 
   it('errors when device code request fails', async () => {
     credMocks.readCredentials.mockResolvedValue(null)
-    vi.stubGlobal('fetch', makeFetchMock(err(500, 'Server error')))
+    vi.stubGlobal('fetch', makeFetchMock(errText(500, 'Server error')))
 
     const {cmd, errorSpy} = makeCmd()
     await expect(cmd.run()).rejects.toThrow()
@@ -117,7 +142,10 @@ describe('login command', () => {
 
   it('errors when poll returns access_denied', async () => {
     credMocks.readCredentials.mockResolvedValue(null)
-    vi.stubGlobal('fetch', makeFetchMock(ok(deviceCodeBody()), ok({error: 'access_denied'})))
+    vi.stubGlobal(
+      'fetch',
+      makeFetchMock(okText(deviceCodeText()), okText(errorText('access_denied'))),
+    )
 
     const {cmd, errorSpy} = makeCmd()
     await expect(cmd.run()).rejects.toThrow()
@@ -126,7 +154,10 @@ describe('login command', () => {
 
   it('errors when poll returns expired_token', async () => {
     credMocks.readCredentials.mockResolvedValue(null)
-    vi.stubGlobal('fetch', makeFetchMock(ok(deviceCodeBody()), ok({error: 'expired_token'})))
+    vi.stubGlobal(
+      'fetch',
+      makeFetchMock(okText(deviceCodeText()), okText(errorText('expired_token'))),
+    )
 
     const {cmd, errorSpy} = makeCmd()
     await expect(cmd.run()).rejects.toThrow()
@@ -140,20 +171,21 @@ describe('login command', () => {
       vi.stubGlobal(
         'fetch',
         makeFetchMock(
-          ok(deviceCodeBody()),
-          ok({error: 'slow_down'}),
-          ok(tokenBody(SESSION_TOKEN)),
-          ok(githubTokenBody()),
+          okText(deviceCodeText()),          // device/code
+          okText(errorText('slow_down')),    // first poll → slow down
+          okText(tokenText()),               // second poll → success
+          okJson(githubUserBody()),          // GET /user
         ),
       )
 
       const {cmd} = makeCmd()
       const runPromise = cmd.run()
-      // advance past the 5s interval added by slow_down
       await vi.runAllTimersAsync()
       await runPromise
 
-      expect(credMocks.writeCredentials).toHaveBeenCalledWith(expect.objectContaining({token: SESSION_TOKEN}))
+      expect(credMocks.writeCredentials).toHaveBeenCalledWith(
+        expect.objectContaining({githubToken: GITHUB_TOKEN}),
+      )
     } finally {
       vi.useRealTimers()
     }

@@ -3,24 +3,8 @@
 import {Command} from '@oclif/core'
 import open from 'open'
 
-import {API_BASE} from '../lib/config.js'
+import {GITHUB_CLIENT_ID, GITHUB_DEVICE_CODE_URL, GITHUB_TOKEN_URL} from '../lib/config.js'
 import {readCredentials, writeCredentials} from '../lib/credentials.js'
-
-type DeviceCodeResponse = {
-  device_code: string
-  expires_in: number
-  interval: number
-  user_code: string
-  verification_uri: string
-  verification_uri_complete?: string
-}
-
-type TokenResponse =
-  | {access_token: string}
-  | {
-      error: 'access_denied' | 'authorization_pending' | 'expired_token' | 'slow_down'
-      error_description?: string
-    }
 
 export default class Login extends Command {
   static description = 'Authenticate with GitHub'
@@ -32,22 +16,29 @@ export default class Login extends Command {
       this.log(`Already logged in as @${existing.username}. Continuing to re-authenticate.`)
     }
 
-    const codeRes = await fetch(`${API_BASE}/auth/device/code`, {
-      body: JSON.stringify({client_id: 'quiver-cli'}),
-      headers: {'Content-Type': 'application/json'},
+    // Step 1 — request a device code from GitHub
+    const codeRes = await fetch(GITHUB_DEVICE_CODE_URL, {
+      body: new URLSearchParams({
+        client_id: GITHUB_CLIENT_ID,
+        scope: 'gist read:user',
+      }),
+      headers: {'Accept': 'application/x-www-form-urlencoded'},
       method: 'POST',
     })
     if (!codeRes.ok) {
       this.error(`Failed to start login: ${codeRes.status} ${await codeRes.text()}`)
     }
 
-    const {
-      device_code,
-      interval = 5,
-      user_code,
-      verification_uri,
-      verification_uri_complete,
-    } = (await codeRes.json()) as DeviceCodeResponse
+    const codeParams = new URLSearchParams(await codeRes.text())
+    const device_code = codeParams.get('device_code')
+    const user_code = codeParams.get('user_code')
+    const verification_uri = codeParams.get('verification_uri') ?? 'https://github.com/login/device'
+    const verification_uri_complete = codeParams.get('verification_uri_complete')
+    const interval = Number(codeParams.get('interval') ?? 5)
+
+    if (!device_code || !user_code) {
+      this.error('GitHub did not return a device code. Check that your OAuth App has "Device authorization" enabled.')
+    }
 
     const openUrl = verification_uri_complete ?? `${verification_uri}?user_code=${user_code}`
 
@@ -57,22 +48,24 @@ export default class Login extends Command {
       // Silently fail — headless environments can't open a browser
     })
 
+    // Step 2 — poll until the user approves
     this.log('Waiting for authorization in the browser...')
-    const sessionToken = await this.pollForToken(device_code, interval * 1000)
+    const githubToken = await this.pollForToken(device_code, interval * 1000)
 
-    const tokenRes = await fetch(`${API_BASE}/cli/github-token`, {
-      headers: {Authorization: `Bearer ${sessionToken}`},
+    // Step 3 — fetch the GitHub username
+    const userRes = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${githubToken}`,
+        'User-Agent': 'quiver-cli',
+      },
     })
-    if (!tokenRes.ok) {
-      this.error(`Failed to retrieve GitHub token: ${tokenRes.status}`)
+    if (!userRes.ok) {
+      this.error(`Failed to fetch GitHub user info: ${userRes.status}`)
     }
 
-    const {githubToken, username} = (await tokenRes.json()) as {
-      githubToken: string
-      username: string
-    }
+    const {login: username} = (await userRes.json()) as {login: string}
 
-    await writeCredentials({githubToken, token: sessionToken, username})
+    await writeCredentials({githubToken, username})
     this.log(`\nLogged in as @${username}`)
   }
 
@@ -88,32 +81,28 @@ export default class Login extends Command {
         setTimeout(resolve, currentInterval)
       })
 
-      const res = await fetch(`${API_BASE}/auth/device/token`, {
-        body: JSON.stringify({
-          client_id: 'quiver-cli',
+      const res = await fetch(GITHUB_TOKEN_URL, {
+        body: new URLSearchParams({
+          client_id: GITHUB_CLIENT_ID,
           device_code: deviceCode,
           grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
         }),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Accept': 'application/x-www-form-urlencoded'},
         method: 'POST',
       })
 
-      const data = (await res.json()) as TokenResponse
+      const params = new URLSearchParams(await res.text())
+      const accessToken = params.get('access_token')
+      const error = params.get('error')
 
-      if ('access_token' in data) return data.access_token
+      if (accessToken) return accessToken
 
-      let nextInterval = currentInterval
-      if (data.error === 'slow_down') nextInterval += 5000
+      if (error === 'slow_down') return attempt(currentInterval + 5000)
+      if (error === 'access_denied') this.error('Authorization was denied. Run quiver login to try again.')
+      if (error === 'expired_token') this.error('Device code expired. Run quiver login to try again.')
 
-      if (data.error === 'access_denied') {
-        this.error('Authorization was denied. Run quiver login to try again.')
-      }
-
-      if (data.error === 'expired_token') {
-        this.error('Device code expired. Run quiver login to try again.')
-      }
-
-      return attempt(nextInterval)
+      // authorization_pending or unknown — keep polling
+      return attempt(currentInterval)
     }
 
     return attempt(intervalMs)

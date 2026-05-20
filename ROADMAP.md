@@ -15,42 +15,24 @@
 
 ## Phase 1 — Authentication (`quiver login`) ✅
 
-> A user can authenticate from the terminal. No web UI — the browser is only used as the OAuth handshake surface. All server logic lives in `apps/api`.
+> A user can authenticate from the terminal. The browser is only used as the OAuth handshake surface. Auth goes directly to GitHub — no server, no database.
 
-**`apps/api` — scaffold**
+**CLI — GitHub OAuth Device Flow (RFC 8628)**
 
-- [x] Create `apps/api` — Hono app, TypeScript, Vercel deployment config
-- [x] Add to Turborepo pipeline
+- [x] Call `POST https://github.com/login/device/code` with `client_id` + `scope=gist read:user`
+- [x] Print user code / open `https://github.com/login/device?user_code=...` in the browser
+- [x] Poll `POST https://github.com/login/oauth/access_token` until approved (RFC 8628)
+- [x] Fetch GitHub username via `GET https://api.github.com/user`
+- [x] Store `githubToken` + `username` in `~/.quiver/credentials.json`
+- [x] Print confirmation (`Logged in as @username`)
 
-**`apps/api` — better-auth + pg**
-
-- [x] Install and configure better-auth with the Hono adapter
-- [x] Wire GitHub OAuth provider
-- [x] Mount better-auth handler at `/auth/*`
-- [x] Device Authorization plugin (`POST /auth/device/code`, `POST /auth/device/token`, `/auth/device/*`) + browser verification at `GET /device`
-- [x] Configure `pg.Pool` → Supabase Postgres (better-auth accepts it natively)
-- [x] Set environment variables (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `DATABASE_URL`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`)
-- [x] Apply initial schema migrations against real Supabase
-- [x] Deploy `apps/api` to Vercel (OAuth callback must be reachable at `api.quiver.nublson.com`)
+> Note: Originally used `apps/api` + better-auth + Supabase for device flow. Replaced with GitHub's native device flow — no server or database needed.
 
 ---
 
 ### Phase 1.5 — Storage Architecture Switch ✅
 
-> Switch from Supabase + `apps/api` lock endpoints to GitHub Gist as the storage backend. Quiver is a personal CLI tool with no server-side data needs — Gist is simpler and removes the database entirely.
-
-**`apps/api` — remove lock infrastructure**
-
-- [x] Remove `skill_locks` table — never built; Supabase schema is auth-only
-- [x] Remove `sync_events` table — never built
-- [x] Remove `POST /locks` and `GET /locks` endpoints — never built
-- [x] Remove `DATABASE_URL` dependency from lock-related code — no lock code existed
-- [x] Remove Supabase client package — was never added
-
-**`apps/api` — Gist token exchange**
-
-- [x] After device auth completes, request a GitHub token with `gist` scope in addition to `read:user`
-- [x] Return GitHub token to the CLI at login time (wired during `quiver login` — Phase 1)
+> GitHub Gist as the storage backend. Quiver is a personal CLI tool with no server-side data needs — Gist is simpler and removes the database entirely. `apps/api` was removed completely.
 
 **CLI — Gist utilities (`src/lib/gist.ts`)**
 

@@ -96,14 +96,6 @@ describe('status command', () => {
     expect(errorSpy).toHaveBeenCalledWith('Run `quiver login` first.')
   })
 
-  it('errors when session token is missing', async () => {
-    credMocks.readCredentials.mockResolvedValue({githubToken: GITHUB_TOKEN, username: 'testuser'})
-
-    const {cmd, errorSpy} = makeCmd()
-    await expect(cmd.run()).rejects.toThrow()
-    expect(errorSpy).toHaveBeenCalledWith('Run `quiver login` first.')
-  })
-
   it('persists gistId when findOrCreateGist returns a new one', async () => {
     const newGistId = 'gist456'
     credMocks.readCredentials.mockResolvedValue(credentials)

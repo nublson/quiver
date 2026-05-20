@@ -102,11 +102,6 @@ jobs:
 
       - name: Build application
         run: pnpm build
-        env:
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
-          BETTER_AUTH_SECRET: "ci-build-placeholder-min-32-chars-do-not-use"
-          BETTER_AUTH_URL: "http://localhost:3000"
-          BASE_URL: "http://localhost:3000"
 
       - name: Publish deploy gate status for Vercel
         if: always()
