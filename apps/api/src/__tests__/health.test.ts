@@ -1,6 +1,6 @@
 import { vi, describe, it, expect } from "vitest";
 
-vi.mock("../db.js", () => ({ prisma: {} }));
+vi.mock("../db.js", () => ({ pool: {} }));
 vi.mock("../auth.js", () => ({
   auth: { handler: vi.fn(), api: { getSession: vi.fn() } },
 }));

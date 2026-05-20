@@ -19,14 +19,14 @@
 - [x] Create `apps/api` — Hono app, TypeScript, Vercel deployment config
 - [x] Add to Turborepo pipeline
 
-**`apps/api` — better-auth + Prisma**
+**`apps/api` — better-auth + pg**
 - [x] Install and configure better-auth with the Hono adapter
 - [x] Wire GitHub OAuth provider
 - [x] Mount better-auth handler at `/auth/*`
 - [x] Device Authorization plugin (`POST /auth/device/code`, `POST /auth/device/token`, `/auth/device/*`) + browser verification at `GET /device`
-- [x] Configure Prisma v7 with `@prisma/adapter-pg` → Supabase Postgres
+- [x] Configure `pg.Pool` → Supabase Postgres (better-auth accepts it natively)
 - [x] Set environment variables (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `DATABASE_URL`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`)
-- [x] Run `pnpm db:migrate --name init` against real Supabase
+- [x] Apply initial schema migrations against real Supabase
 - [ ] Deploy `apps/api` to Vercel (OAuth callback must be reachable at `api.quiver.nublson.com`)
 
 **CLI — `quiver login`**
