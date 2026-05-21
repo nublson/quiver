@@ -1,7 +1,7 @@
-import Terminal from "@/components/terminal";
 import InstallPill from "@/components/install-pill";
-import { ArrowIcon } from "@/components/icons";
+import Terminal from "@/components/terminal";
 import { CLI_VERSION } from "@/lib/version";
+import { RiArrowRightLine } from "@remixicon/react";
 
 export default function Hero() {
   return (
@@ -75,14 +75,26 @@ export default function Hero() {
             >
               Quiver is a CLI sync layer for the global skills your agents
               share. Push from one machine, run{" "}
-              <code style={{ fontFamily: "var(--font-jetbrains-mono)", color: "var(--accent)" }}>
+              <code
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  color: "var(--accent)",
+                }}
+              >
                 quiver sync
               </code>{" "}
               on the next, and pick up exactly where you left off — no dotfile
               scripts, no new accounts, no proprietary backend.
             </p>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 12,
+                alignItems: "center",
+              }}
+            >
               <InstallPill cmd="npm install -g usequiver" />
               <a
                 href="#how"
@@ -103,12 +115,19 @@ export default function Hero() {
                   cursor: "pointer",
                 }}
               >
-                See how it works <ArrowIcon />
+                See how it works <RiArrowRightLine size={16} />
               </a>
             </div>
           </div>
 
-          <div style={{ marginTop: 8, position: "relative", minWidth: 0, overflow: "hidden" }}>
+          <div
+            style={{
+              marginTop: 8,
+              position: "relative",
+              minWidth: 0,
+              overflow: "hidden",
+            }}
+          >
             <Terminal chrome="minimal" autoLoop />
           </div>
         </div>

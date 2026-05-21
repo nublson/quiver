@@ -1,3 +1,5 @@
+import { RiArrowRightLongLine } from "@remixicon/react";
+
 export default function PainStrip() {
   return (
     <div
@@ -30,11 +32,11 @@ export default function PainStrip() {
               marginBottom: 12,
             }}
           >
-            // before
+            {`// before`}
           </div>
           <div style={{ fontSize: 17, lineHeight: 1.5, color: "var(--fg)" }}>
-            "I set up all my skills on my work machine and now I&apos;m on my
-            personal Mac and nothing is there."
+            &quot;I set up all my skills on my work machine and now I&apos;m on
+            my personal Mac and nothing is there.&quot;
           </div>
         </div>
 
@@ -46,7 +48,7 @@ export default function PainStrip() {
             color: "var(--accent)",
           }}
         >
-          →
+          <RiArrowRightLongLine />
         </div>
 
         <div style={{ fontFamily: "var(--font-jetbrains-mono)" }}>
@@ -59,10 +61,12 @@ export default function PainStrip() {
               marginBottom: 12,
             }}
           >
-            // with quiver
+            {`// with quiver`}
           </div>
           <div style={{ fontSize: 17, lineHeight: 1.5, color: "var(--fg)" }}>
-            <em style={{ color: "var(--accent)", fontStyle: "normal" }}>quiver sync</em>
+            <em style={{ color: "var(--accent)", fontStyle: "normal" }}>
+              quiver sync
+            </em>
             &nbsp;— one command, every skill, every agent, every device.
           </div>
         </div>

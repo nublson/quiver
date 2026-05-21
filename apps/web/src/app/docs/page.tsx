@@ -9,7 +9,10 @@ export const metadata = {
 export default function DocsPage() {
   return (
     <div style={{ position: "relative", zIndex: 1 }}>
-      <div className="container-site" style={{ padding: "96px 0", width: "100%" }}>
+      <div
+        className="container-site"
+        style={{ padding: "96px 0", width: "100%" }}
+      >
         <SectionLabel>Documentation</SectionLabel>
 
         <h1

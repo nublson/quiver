@@ -6,7 +6,9 @@ interface InstallPillProps {
   cmd?: string;
 }
 
-export default function InstallPill({ cmd = "npm install -g usequiver" }: InstallPillProps) {
+export default function InstallPill({
+  cmd = "npm install -g usequiver",
+}: InstallPillProps) {
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {

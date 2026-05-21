@@ -1,6 +1,6 @@
 import InstallPill from "@/components/install-pill";
 import { SectionLabel } from "@/components/section-label";
-import { ArrowIcon, GithubIcon } from "@/components/icons";
+import { RiArrowRightLine, RiGithubFill } from "@remixicon/react";
 
 export default function CTASection() {
   return (
@@ -10,7 +10,8 @@ export default function CTASection() {
           className="cta-grid"
           style={{
             border: "1px solid var(--line)",
-            background: "radial-gradient(circle at 80% 20%, oklch(0.78 0.14 75 / 0.10), transparent 50%), var(--bg-elev)",
+            background:
+              "radial-gradient(circle at 80% 20%, oklch(0.78 0.14 75 / 0.10), transparent 50%), var(--bg-elev)",
             borderRadius: 14,
             padding: "56px 48px",
             display: "grid",
@@ -37,10 +38,16 @@ export default function CTASection() {
 
             <p style={{ color: "var(--fg-mute)", maxWidth: "50ch" }}>
               Quiver is free and open source. Install the CLI, run{" "}
-              <code style={{ fontFamily: "var(--font-jetbrains-mono)", color: "var(--accent)" }}>
+              <code
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  color: "var(--accent)",
+                }}
+              >
                 quiver login
               </code>{" "}
-              once, and your global skills follow you to every machine you sign in on.
+              once, and your global skills follow you to every machine you sign
+              in on.
             </p>
           </div>
 
@@ -76,7 +83,7 @@ export default function CTASection() {
                   cursor: "pointer",
                 }}
               >
-                Read the docs <ArrowIcon />
+                Read the docs <RiArrowRightLine size={16} />
               </a>
               <a
                 href="https://github.com/nublson/quiver"
@@ -101,7 +108,7 @@ export default function CTASection() {
                   cursor: "pointer",
                 }}
               >
-                <GithubIcon /> Star
+                <RiGithubFill size={16} /> Star
               </a>
             </div>
           </div>

@@ -66,7 +66,10 @@ export default function PropsSection() {
         }}
       >
         {PROPS.map((p, i) => (
-          <div key={i} style={{ background: "var(--bg)", padding: "32px 28px" }}>
+          <div
+            key={i}
+            style={{ background: "var(--bg)", padding: "32px 28px" }}
+          >
             <div
               style={{
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -89,7 +92,15 @@ export default function PropsSection() {
             >
               {p.h}
             </h4>
-            <p style={{ fontSize: 14, color: "var(--fg-mute)", lineHeight: 1.55 }}>{p.p}</p>
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--fg-mute)",
+                lineHeight: 1.55,
+              }}
+            >
+              {p.p}
+            </p>
           </div>
         ))}
       </div>

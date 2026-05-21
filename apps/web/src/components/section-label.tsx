@@ -17,7 +17,14 @@ export function SectionLabel({ children }: SectionLabelProps) {
         marginBottom: 16,
       }}
     >
-      <span style={{ width: 16, height: 1, background: "var(--accent)", display: "inline-block" }} />
+      <span
+        style={{
+          width: 16,
+          height: 1,
+          background: "var(--accent)",
+          display: "inline-block",
+        }}
+      />
       {children}
     </div>
   );

@@ -8,7 +8,7 @@ import PropsSection from "@/components/props-section";
 
 export default function Home() {
   return (
-    <div className="relative z-[1]">
+    <div className="relative z-1">
       <Hero />
       <PainStrip />
       <CommandsSection />

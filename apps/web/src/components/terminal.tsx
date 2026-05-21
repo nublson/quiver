@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,7 +33,7 @@ function renderTokens(parts: TokenPart[]) {
       </span>
     ) : (
       <span key={i}>{p.t}</span>
-    )
+    ),
   );
 }
 
@@ -99,9 +99,18 @@ const SCENES: Record<string, Scene> = {
         { t: "quiver ", c: "term-cmd" },
         { t: "login", c: "term-warn" },
       ]),
-      out([{ t: "→ Visit ", c: "term-mute" }, { t: "https://github.com/login/device", c: "term-str" }]),
-      out([{ t: "→ Code: ", c: "term-mute" }, { t: "A7F4-92QK", c: "term-warn" }]),
-      out([{ t: "✓ Authenticated as ", c: "term-ok" }, { t: "@nublson", c: "term-str" }]),
+      out([
+        { t: "→ Visit ", c: "term-mute" },
+        { t: "https://github.com/login/device", c: "term-str" },
+      ]),
+      out([
+        { t: "→ Code: ", c: "term-mute" },
+        { t: "A7F4-92QK", c: "term-warn" },
+      ]),
+      out([
+        { t: "✓ Authenticated as ", c: "term-ok" },
+        { t: "@nublson", c: "term-str" },
+      ]),
       blank(),
       cmdLine("macbook-air", "~", [
         { t: "quiver ", c: "term-cmd" },
@@ -110,15 +119,45 @@ const SCENES: Record<string, Scene> = {
       out([{ t: "↓ fetching remote lock from gist…", c: "term-mute" }]),
       out([{ t: "  found 6 skills, 6 missing locally", c: "term-mute" }]),
       blank(),
-      out([{ t: "  + ", c: "diff-add" }, { t: "frontend-design", c: "term-cmd" }, { t: "   anthropics/skills", c: "term-mute" }]),
-      out([{ t: "  + ", c: "diff-add" }, { t: "react-best-practices", c: "term-cmd" }, { t: "   vercel-labs/agent-skills", c: "term-mute" }]),
-      out([{ t: "  + ", c: "diff-add" }, { t: "pdf-reading", c: "term-cmd" }, { t: "        anthropics/skills", c: "term-mute" }]),
-      out([{ t: "  + ", c: "diff-add" }, { t: "pptx-export", c: "term-cmd" }, { t: "        anthropics/skills", c: "term-mute" }]),
-      out([{ t: "  + ", c: "diff-add" }, { t: "docx-export", c: "term-cmd" }, { t: "        anthropics/skills", c: "term-mute" }]),
-      out([{ t: "  + ", c: "diff-add" }, { t: "tailwind-v4", c: "term-cmd" }, { t: "        shadcn/skills", c: "term-mute" }]),
+      out([
+        { t: "  + ", c: "diff-add" },
+        { t: "frontend-design", c: "term-cmd" },
+        { t: "   anthropics/skills", c: "term-mute" },
+      ]),
+      out([
+        { t: "  + ", c: "diff-add" },
+        { t: "react-best-practices", c: "term-cmd" },
+        { t: "   vercel-labs/agent-skills", c: "term-mute" },
+      ]),
+      out([
+        { t: "  + ", c: "diff-add" },
+        { t: "pdf-reading", c: "term-cmd" },
+        { t: "        anthropics/skills", c: "term-mute" },
+      ]),
+      out([
+        { t: "  + ", c: "diff-add" },
+        { t: "pptx-export", c: "term-cmd" },
+        { t: "        anthropics/skills", c: "term-mute" },
+      ]),
+      out([
+        { t: "  + ", c: "diff-add" },
+        { t: "docx-export", c: "term-cmd" },
+        { t: "        anthropics/skills", c: "term-mute" },
+      ]),
+      out([
+        { t: "  + ", c: "diff-add" },
+        { t: "tailwind-v4", c: "term-cmd" },
+        { t: "        shadcn/skills", c: "term-mute" },
+      ]),
       blank(),
       out([{ t: "✓ installed 6 skills in 4.3s", c: "term-ok" }]),
-      out([{ t: "✓ ", c: "term-ok" }, { t: "in sync with ", c: "term-mute" }, { t: "work-imac", c: "term-host" }, { t: " · ", c: "term-mute" }, { t: "thinkpad-x1", c: "term-host" }]),
+      out([
+        { t: "✓ ", c: "term-ok" },
+        { t: "in sync with ", c: "term-mute" },
+        { t: "work-imac", c: "term-host" },
+        { t: " · ", c: "term-mute" },
+        { t: "thinkpad-x1", c: "term-host" },
+      ]),
     ],
   },
 
@@ -134,19 +173,41 @@ const SCENES: Record<string, Scene> = {
         { t: "frontend-design", c: "term-str" },
         { t: " -g", c: "term-flag" },
       ]),
-      out([{ t: "✓ installed ", c: "term-ok" }, { t: "frontend-design", c: "term-cmd" }, { t: " globally", c: "term-mute" }]),
+      out([
+        { t: "✓ installed ", c: "term-ok" },
+        { t: "frontend-design", c: "term-cmd" },
+        { t: " globally", c: "term-mute" },
+      ]),
       blank(),
       cmdLine("work-imac", "~/projects", [
         { t: "quiver ", c: "term-cmd" },
         { t: "push", c: "term-warn" },
       ]),
-      out([{ t: "↑ reading ", c: "term-mute" }, { t: "~/.agents/.skill-lock.json", c: "term-str" }]),
-      out([{ t: "  6 skills · ", c: "term-mute" }, { t: "+1 since last push", c: "diff-add" }]),
+      out([
+        { t: "↑ reading ", c: "term-mute" },
+        { t: "~/.agents/.skill-lock.json", c: "term-str" },
+      ]),
+      out([
+        { t: "  6 skills · ", c: "term-mute" },
+        { t: "+1 since last push", c: "diff-add" },
+      ]),
       blank(),
-      out([{ t: "↑ uploading to gist ", c: "term-mute" }, { t: "quiver-skill-lock.json", c: "term-str" }]),
-      out([{ t: "✓ pushed in 0.7s · revision ", c: "term-ok" }, { t: "#23", c: "term-warn" }]),
+      out([
+        { t: "↑ uploading to gist ", c: "term-mute" },
+        { t: "quiver-skill-lock.json", c: "term-str" },
+      ]),
+      out([
+        { t: "✓ pushed in 0.7s · revision ", c: "term-ok" },
+        { t: "#23", c: "term-warn" },
+      ]),
       blank(),
-      out([{ t: "  your other devices will pick this up on next ", c: "term-mute" }, { t: "quiver sync", c: "term-cmd" }]),
+      out([
+        {
+          t: "  your other devices will pick this up on next ",
+          c: "term-mute",
+        },
+        { t: "quiver sync", c: "term-cmd" },
+      ]),
     ],
   },
 
@@ -160,16 +221,46 @@ const SCENES: Record<string, Scene> = {
         { t: "status", c: "term-warn" },
       ]),
       blank(),
-      out([{ t: "comparing local ↔ remote ", c: "term-mute" }, { t: "(gist · @nublson)", c: "term-str" }]),
+      out([
+        { t: "comparing local ↔ remote ", c: "term-mute" },
+        { t: "(gist · @nublson)", c: "term-str" },
+      ]),
       blank(),
-      out([{ t: "  remote only  ", c: "term-mute" }, { t: "→", c: "diff-add" }, { t: " 2", c: "term-cmd" }], "term-indent"),
-      out([{ t: "    + ", c: "diff-add" }, { t: "tailwind-v4", c: "term-cmd" }, { t: "       shadcn/skills", c: "term-mute" }]),
-      out([{ t: "    + ", c: "diff-add" }, { t: "pptx-export", c: "term-cmd" }, { t: "       anthropics/skills", c: "term-mute" }]),
+      out(
+        [
+          { t: "  remote only  ", c: "term-mute" },
+          { t: "→", c: "diff-add" },
+          { t: " 2", c: "term-cmd" },
+        ],
+        "term-indent",
+      ),
+      out([
+        { t: "    + ", c: "diff-add" },
+        { t: "tailwind-v4", c: "term-cmd" },
+        { t: "       shadcn/skills", c: "term-mute" },
+      ]),
+      out([
+        { t: "    + ", c: "diff-add" },
+        { t: "pptx-export", c: "term-cmd" },
+        { t: "       anthropics/skills", c: "term-mute" },
+      ]),
       blank(),
-      out([{ t: "  local only   ", c: "term-mute" }, { t: "→", c: "diff-rm" }, { t: " 0", c: "term-cmd" }]),
-      out([{ t: "  in sync      ", c: "term-mute" }, { t: "→", c: "diff-eq" }, { t: " 4", c: "term-cmd" }]),
+      out([
+        { t: "  local only   ", c: "term-mute" },
+        { t: "→", c: "diff-rm" },
+        { t: " 0", c: "term-cmd" },
+      ]),
+      out([
+        { t: "  in sync      ", c: "term-mute" },
+        { t: "→", c: "diff-eq" },
+        { t: " 4", c: "term-cmd" },
+      ]),
       blank(),
-      out([{ t: "  run ", c: "term-mute" }, { t: "quiver sync", c: "term-warn" }, { t: " to install missing skills.", c: "term-mute" }]),
+      out([
+        { t: "  run ", c: "term-mute" },
+        { t: "quiver sync", c: "term-warn" },
+        { t: " to install missing skills.", c: "term-mute" },
+      ]),
     ],
   },
 };
@@ -189,7 +280,10 @@ interface TerminalProps {
   autoLoop?: boolean;
 }
 
-export default function Terminal({ chrome = "minimal", autoLoop = true }: TerminalProps) {
+export default function Terminal({
+  chrome = "minimal",
+  autoLoop = true,
+}: TerminalProps) {
   const [sceneIdx, setSceneIdx] = useState(0);
   const [lineIdx, setLineIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
@@ -225,7 +319,7 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
 
     const line = scene.lines[lineIdx];
     if (!line) {
-      setDone(true);
+      setTimeout(() => setDone(true), 0);
       return;
     }
 
@@ -241,7 +335,7 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
     }
 
     if (charIdx < startChar) {
-      setCharIdx(startChar);
+      setTimeout(() => setCharIdx(startChar), 0);
       return;
     }
 
@@ -277,12 +371,27 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
     if (el) el.scrollTop = el.scrollHeight;
   }, [lineIdx, charIdx, sceneIdx]);
 
-  const visibleLines: { line: TermLine; chars: number; key: number; isCurrent: boolean }[] = [];
+  const visibleLines: {
+    line: TermLine;
+    chars: number;
+    key: number;
+    isCurrent: boolean;
+  }[] = [];
   for (let i = 0; i < lineIdx; i++) {
-    visibleLines.push({ line: scene.lines[i], chars: lineLength(scene.lines[i]), key: i, isCurrent: false });
+    visibleLines.push({
+      line: scene.lines[i],
+      chars: lineLength(scene.lines[i]),
+      key: i,
+      isCurrent: false,
+    });
   }
   if (lineIdx < scene.lines.length) {
-    visibleLines.push({ line: scene.lines[lineIdx], chars: charIdx, key: lineIdx, isCurrent: true });
+    visibleLines.push({
+      line: scene.lines[lineIdx],
+      chars: charIdx,
+      key: lineIdx,
+      isCurrent: true,
+    });
   }
 
   return (
@@ -292,7 +401,8 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
         background: "oklch(0.13 0.006 60)",
         border: "1px solid var(--line)",
         borderRadius: 10,
-        boxShadow: "0 1px 0 oklch(0.30 0.006 60) inset, 0 24px 60px -20px oklch(0 0 0 / 0.6), 0 4px 16px oklch(0 0 0 / 0.3)",
+        boxShadow:
+          "0 1px 0 oklch(0.30 0.006 60) inset, 0 24px 60px -20px oklch(0 0 0 / 0.6), 0 4px 16px oklch(0 0 0 / 0.3)",
         overflow: "hidden",
         fontFamily: "var(--font-jetbrains-mono)",
       }}
@@ -305,19 +415,53 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
           justifyContent: "space-between",
           height: 36,
           padding: "0 14px",
-          background: chrome === "minimal" ? "transparent" : "oklch(0.19 0.006 60)",
+          background:
+            chrome === "minimal" ? "transparent" : "oklch(0.19 0.006 60)",
           borderBottom: "1px solid var(--line)",
         }}
       >
         {chrome === "classic" && (
           <div style={{ display: "flex", gap: 7 }}>
-            <span style={{ width: 11, height: 11, borderRadius: 999, background: "oklch(0.65 0.18 25)", display: "block" }} />
-            <span style={{ width: 11, height: 11, borderRadius: 999, background: "oklch(0.78 0.16 85)", display: "block" }} />
-            <span style={{ width: 11, height: 11, borderRadius: 999, background: "oklch(0.72 0.16 150)", display: "block" }} />
+            <span
+              style={{
+                width: 11,
+                height: 11,
+                borderRadius: 999,
+                background: "oklch(0.65 0.18 25)",
+                display: "block",
+              }}
+            />
+            <span
+              style={{
+                width: 11,
+                height: 11,
+                borderRadius: 999,
+                background: "oklch(0.78 0.16 85)",
+                display: "block",
+              }}
+            />
+            <span
+              style={{
+                width: 11,
+                height: 11,
+                borderRadius: 999,
+                background: "oklch(0.72 0.16 150)",
+                display: "block",
+              }}
+            />
           </div>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", fontFamily: "var(--font-jetbrains-mono)", fontSize: 11.5, minWidth: 0, flex: 1 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            fontFamily: "var(--font-jetbrains-mono)",
+            fontSize: 11.5,
+            minWidth: 0,
+            flex: 1,
+          }}
+        >
           {SCENE_ORDER.map((k, i) => (
             <span
               key={k}
@@ -340,19 +484,32 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
                   width: 6,
                   height: 6,
                   borderRadius: 999,
-                  background: i === sceneIdx ? "var(--accent)" : "var(--fg-dim)",
+                  background:
+                    i === sceneIdx ? "var(--accent)" : "var(--fg-dim)",
                   display: "inline-block",
                   flexShrink: 0,
                 }}
               />
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {SCENES[k].host}
               </span>
             </span>
           ))}
         </div>
 
-        <div style={{ fontFamily: "var(--font-jetbrains-mono)", fontSize: 11.5, color: "var(--fg-dim)" }}>
+        <div
+          style={{
+            fontFamily: "var(--font-jetbrains-mono)",
+            fontSize: 11.5,
+            color: "var(--fg-dim)",
+          }}
+        >
           {chrome !== "minimal" ? "zsh — quiver" : ""}
         </div>
       </div>
@@ -377,7 +534,11 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
           return (
             <div
               key={key}
-              style={{ whiteSpace: "pre-wrap", wordBreak: "break-word", paddingLeft: line.cls === "term-indent" ? 16 : 0 }}
+              style={{
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                paddingLeft: line.cls === "term-indent" ? 16 : 0,
+              }}
             >
               {renderTokens(truncated.parts)}
               {isCurrent && <span className="term-cursor" />}
@@ -389,7 +550,7 @@ export default function Terminal({ chrome = "minimal", autoLoop = true }: Termin
           <>
             <div style={{ height: 8 }} />
             <div style={{ whiteSpace: "pre-wrap" }}>
-              <span className="term-prompt">➜  </span>
+              <span className="term-prompt">➜ </span>
               <span className="term-host">{scene.host}</span>{" "}
               <span className="term-path">{scene.path}</span>{" "}
               <span className="term-cursor" />

@@ -37,13 +37,20 @@ export default function Footer() {
                 href="https://nublson.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "var(--accent)", borderBottom: "1px solid var(--accent)" }}
+                style={{
+                  color: "var(--accent)",
+                  borderBottom: "1px solid var(--accent)",
+                }}
               >
-                Nubelson
+                @nublson
               </a>
             </span>
-            <span className="foot-sep" style={{ color: "var(--fg-dim)" }}>·</span>
-            <span style={{ color: "var(--fg-dim)" }}>for developers, with love and coffee</span>
+            <span className="foot-sep" style={{ color: "var(--fg-dim)" }}>
+              ·
+            </span>
+            <span style={{ color: "var(--fg-dim)" }}>
+              for developers, with love and coffee.
+            </span>
           </div>
 
           <div className="foot-links" style={{ display: "flex", gap: 24 }}>
@@ -63,8 +70,12 @@ export default function Footer() {
             >
               npm
             </a>
-            <Link href="/docs" style={{ transition: "color 0.12s" }}>docs</Link>
-            <a href="#" style={{ transition: "color 0.12s" }}>changelog</a>
+            <Link href="/docs" style={{ transition: "color 0.12s" }}>
+              docs
+            </Link>
+            <a href="#" style={{ transition: "color 0.12s" }}>
+              changelog
+            </a>
           </div>
         </div>
       </div>

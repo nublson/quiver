@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { SectionLabel } from "@/components/section-label";
+import { useState } from "react";
 
 const STEPS = [
   {
@@ -32,33 +32,61 @@ interface Device {
 
 const DEVICE_STATES: Device[][] = [
   [
-    { name: "work-imac", status: "installing", skills: ["frontend-design", "pdf-reading", "react-best-practices"] },
+    {
+      name: "work-imac",
+      status: "installing",
+      skills: ["frontend-design", "pdf-reading", "react-best-practices"],
+    },
     { name: "macbook-air", status: "empty", skills: [] },
     { name: "thinkpad-x1", status: "empty", skills: [] },
   ],
   [
-    { name: "work-imac", status: "pushed", skills: ["frontend-design", "pdf-reading", "react-best-practices"] },
+    {
+      name: "work-imac",
+      status: "pushed",
+      skills: ["frontend-design", "pdf-reading", "react-best-practices"],
+    },
     { name: "macbook-air", status: "empty", skills: [] },
     { name: "thinkpad-x1", status: "empty", skills: [] },
   ],
   [
-    { name: "work-imac", status: "synced", skills: ["frontend-design", "pdf-reading", "react-best-practices"] },
-    { name: "macbook-air", status: "syncing", skills: ["frontend-design", "pdf-reading", "react-best-practices"] },
+    {
+      name: "work-imac",
+      status: "synced",
+      skills: ["frontend-design", "pdf-reading", "react-best-practices"],
+    },
+    {
+      name: "macbook-air",
+      status: "syncing",
+      skills: ["frontend-design", "pdf-reading", "react-best-practices"],
+    },
     { name: "thinkpad-x1", status: "empty", skills: [] },
   ],
   [
-    { name: "work-imac", status: "synced", skills: ["frontend-design", "pdf-reading", "react-best-practices"] },
-    { name: "macbook-air", status: "synced", skills: ["frontend-design", "pdf-reading", "react-best-practices"] },
-    { name: "thinkpad-x1", status: "synced", skills: ["frontend-design", "pdf-reading", "react-best-practices"] },
+    {
+      name: "work-imac",
+      status: "synced",
+      skills: ["frontend-design", "pdf-reading", "react-best-practices"],
+    },
+    {
+      name: "macbook-air",
+      status: "synced",
+      skills: ["frontend-design", "pdf-reading", "react-best-practices"],
+    },
+    {
+      name: "thinkpad-x1",
+      status: "synced",
+      skills: ["frontend-design", "pdf-reading", "react-best-practices"],
+    },
   ],
 ];
 
 const STATUS_COLORS: Record<DeviceStatus, { fg: string; label: string }> = {
-  empty:      { fg: "var(--fg-dim)", label: "— empty" },
+  empty: { fg: "var(--fg-dim)", label: "— empty" },
   installing: { fg: "var(--accent)", label: "installing…" },
-  pushed:     { fg: "var(--accent)", label: "pushed" },
-  syncing:    { fg: "var(--blue)",   label: "syncing…" },
-  synced:     { fg: "var(--green)",  label: "in sync" },
+  pushed: { fg: "var(--accent)", label: "pushed" },
+  syncing: { fg: "var(--blue)", label: "syncing…" },
+  synced: { fg: "var(--green)", label: "in sync" },
 };
 
 function DeviceTopology({ active }: { active: number }) {
@@ -105,7 +133,9 @@ function DeviceTopology({ active }: { active: number }) {
           gist://nublson/quiver-skill-lock.json
         </span>
         <span style={{ color: "var(--fg-dim)" }}>
-          {active >= 1 ? `rev #23 · ${devices[0].skills.length} skills` : "rev #22"}
+          {active >= 1
+            ? `rev #23 · ${devices[0].skills.length} skills`
+            : "rev #22"}
         </span>
       </div>
 
@@ -133,8 +163,17 @@ function DeviceTopology({ active }: { active: number }) {
                 position: "relative",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <span style={{ color: "var(--fg)", fontWeight: 600 }}>{d.name}</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 14,
+                }}
+              >
+                <span style={{ color: "var(--fg)", fontWeight: 600 }}>
+                  {d.name}
+                </span>
                 <span
                   style={{
                     display: "inline-flex",
@@ -146,15 +185,33 @@ function DeviceTopology({ active }: { active: number }) {
                     textTransform: "uppercase",
                   }}
                 >
-                  <span style={{ width: 6, height: 6, borderRadius: 999, background: c.fg, display: "inline-block" }} />
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 999,
+                      background: c.fg,
+                      display: "inline-block",
+                    }}
+                  />
                   {c.label}
                 </span>
               </div>
 
-              <div style={{ color: "var(--fg-dim)", fontSize: 11 }}>~/.agents/.skill-lock.json</div>
+              <div style={{ color: "var(--fg-dim)", fontSize: 11 }}>
+                ~/.agents/.skill-lock.json
+              </div>
 
               {d.skills.length > 0 ? (
-                <ul style={{ listStyle: "none", marginTop: 12, display: "flex", flexDirection: "column", gap: 5 }}>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    marginTop: 12,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 5,
+                  }}
+                >
                   {d.skills.map((s) => (
                     <li
                       key={s}
@@ -168,7 +225,9 @@ function DeviceTopology({ active }: { active: number }) {
                         transition: "opacity 0.4s ease",
                       }}
                     >
-                      <span style={{ color: "var(--accent)", fontSize: 10 }}>▸</span>
+                      <span style={{ color: "var(--accent)", fontSize: 10 }}>
+                        ▸
+                      </span>
                       {s}
                     </li>
                   ))}
@@ -260,7 +319,8 @@ export default function HowItWorks() {
                   gridTemplateColumns: "44px 1fr",
                   gap: 18,
                   padding: "20px 0",
-                  borderBottom: i < STEPS.length - 1 ? "1px solid var(--line)" : "none",
+                  borderBottom:
+                    i < STEPS.length - 1 ? "1px solid var(--line)" : "none",
                   cursor: "pointer",
                   alignItems: "start",
                 }}

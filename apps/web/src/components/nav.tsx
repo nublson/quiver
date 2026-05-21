@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { GithubIcon } from "@/components/icons";
 import { CLI_VERSION } from "@/lib/version";
+import { RiGithubFill } from "@remixicon/react";
+import Link from "next/link";
 
 export default function Nav() {
   return (
@@ -15,7 +15,15 @@ export default function Nav() {
         borderBottom: "1px solid var(--line)",
       }}
     >
-      <div className="container-site" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
+      <div
+        className="container-site"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: 60,
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -29,7 +37,9 @@ export default function Nav() {
         >
           <Link href="/">
             <span style={{ color: "var(--fg)" }}>
-              <span style={{ color: "var(--fg-dim)", fontWeight: 400 }}>~/</span>
+              <span style={{ color: "var(--fg-dim)", fontWeight: 400 }}>
+                ~/
+              </span>
               quiver
             </span>
           </Link>
@@ -61,10 +71,18 @@ export default function Nav() {
             color: "var(--fg-mute)",
           }}
         >
-          <a href="#commands" style={{ transition: "color 0.12s" }}>commands</a>
-          <a href="#how" style={{ transition: "color 0.12s" }}>how it works</a>
-          <a href="#why" style={{ transition: "color 0.12s" }}>why</a>
-          <Link href="/docs" style={{ transition: "color 0.12s" }}>docs</Link>
+          <a href="#commands" style={{ transition: "color 0.12s" }}>
+            commands
+          </a>
+          <a href="#how" style={{ transition: "color 0.12s" }}>
+            how it works
+          </a>
+          <a href="#why" style={{ transition: "color 0.12s" }}>
+            why
+          </a>
+          <Link href="/docs" style={{ transition: "color 0.12s" }}>
+            docs
+          </Link>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -89,7 +107,7 @@ export default function Nav() {
               cursor: "pointer",
             }}
           >
-            <GithubIcon /> github
+            <RiGithubFill size={16} /> github
           </a>
           <a
             href="https://www.npmjs.com/package/usequiver"
