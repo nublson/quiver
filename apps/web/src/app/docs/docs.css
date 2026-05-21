@@ -250,12 +250,12 @@
   display: block;
 }
 
-/* ─── Standard code blocks (shiki) ───────────────────────────────────────── */
+/* ─── Code blocks (rendered via CodeBlock component + Shiki vesper theme) ── */
+/* Container/chrome handled by CodeBlock figure wrapper (inline styles).     */
+/* Pre component sets margin/padding/overflow — these are fallback resets.   */
 .docs-main pre {
-  margin: 18px 0 24px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: oklch(0.13 0.006 60) !important;
+  margin: 0;
+  background: transparent !important;
   padding: 14px 18px;
   font-size: 13px;
   line-height: 1.6;
@@ -266,11 +266,7 @@
   border: none;
   padding: 0;
   color: inherit;
-}
-
-/* shiki token overrides to match design palette */
-.docs-main .shiki {
-  background: oklch(0.13 0.006 60) !important;
+  font-size: inherit;
 }
 
 /* ─── Flags table ─────────────────────────────────────────────────────────── */

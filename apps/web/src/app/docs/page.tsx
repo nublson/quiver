@@ -6,6 +6,7 @@ import DocsTOC from "./toc";
 import Callout from "@/components/docs/callout";
 import CmdRef from "@/components/docs/cmd-ref";
 import Terminal from "@/components/docs/terminal";
+import { CodeBlock, Pre } from "@/components/docs/code-block";
 
 /** Derive a unique anchor from a page's slug array. */
 function pageAnchor(slugs: string[]): string {
@@ -83,7 +84,26 @@ export default async function DocsPage() {
           return (
             <section key={page.url} id={anchor} className="docs-section">
               <h2>{page.data.title}</h2>
-              <MDXContent components={{ Callout, CmdRef, Terminal }} />
+              <MDXContent
+                components={{
+                  Callout,
+                  CmdRef,
+                  Terminal,
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  pre: ({ ref: _ref, title, children, ...props }) => (
+                    <CodeBlock
+                      title={title}
+                      lang={
+                        (props as Record<string, unknown>)[
+                          "data-language"
+                        ] as string | undefined
+                      }
+                    >
+                      <Pre>{children}</Pre>
+                    </CodeBlock>
+                  ),
+                }}
+              />
             </section>
           );
         })}
