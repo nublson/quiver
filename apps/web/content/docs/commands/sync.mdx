@@ -1,0 +1,18 @@
+---
+title: sync
+description: Pull the remote lock and replay missing skill installs.
+---
+
+<CmdRef signature="quiver sync [--only <skill>] [--yes]" since="0.1.0">
+Pulls the remote lock file, diffs it against the local one, and runs `npx skills add` for every entry that's missing locally. **Additive only** — never removes local skills.
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--only` | string | — | Sync just one skill by name. Repeatable. |
+| `--yes, -y` | boolean | false | Skip the confirmation prompt. |
+| `--prune` | boolean | false | Remove local skills that aren't in the remote lock. Destructive. |
+</CmdRef>
+
+<Callout type="warn">
+`--prune` deletes local skills. Use `quiver status` to preview the diff before running it, and consider `quiver push` first if your local set is the one you want to keep.
+</Callout>

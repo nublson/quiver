@@ -1,0 +1,33 @@
+---
+title: Quick Start
+description: From zero to synced in two commands per machine.
+---
+
+From a machine that already has the skills you want to back up:
+
+```bash title="on the source machine"
+$ quiver login
+→ opens browser to github.com/login/device
+✓ authenticated as nublson
+
+$ quiver push
+reading ~/.agents/.skill-lock.json … 7 skills
+writing gist://nublson/quiver-skill-lock.json
+✓ pushed rev #23
+```
+
+Then, on every other machine you log into:
+
+```bash title="on the new machine"
+$ quiver login
+✓ authenticated as nublson
+
+$ quiver sync
+remote rev #23 · 7 skills · local rev #19 · 4 skills
++ frontend-design
++ pdf-reading
++ react-best-practices
+✓ synced 3 new skills · 4 already present
+```
+
+That's the whole loop. Run `quiver push` when you add new skills, `quiver sync` on machines that need to catch up.

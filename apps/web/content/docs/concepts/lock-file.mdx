@@ -1,0 +1,22 @@
+---
+title: Lock file
+description: The ~/.agents/.skill-lock.json file that Quiver reads and writes.
+---
+
+Quiver does not invent a new file format. It reads and writes the same `~/.agents/.skill-lock.json` that `npx skills` already produces. A typical entry looks like this:
+
+```json
+{
+  "version": 2,
+  "updated": "2026-05-18T14:22:09Z",
+  "skills": {
+    "frontend-design": {
+      "source":  "github:anthropics/skills",
+      "version": "1.2.0",
+      "sha":     "4f1b…"
+    }
+  }
+}
+```
+
+Quiver only writes to the `skills` object and the `updated` timestamp. It never touches keys it doesn't recognize, so it's safe to use alongside future `skill-lock` extensions.

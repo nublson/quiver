@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:          oklch(0.17 0.006 60);
+  --bg-elev:     oklch(0.20 0.006 60);
+  --bg-soft:     oklch(0.22 0.006 60);
+  --line:        oklch(0.28 0.006 60);
+  --line-strong: oklch(0.36 0.006 60);
+  --fg:          oklch(0.94 0.005 80);
+  --fg-mute:     oklch(0.72 0.006 70);
+  --fg-dim:      oklch(0.52 0.006 70);
+  --accent:      oklch(0.78 0.14 75);
+  --accent-dim:  oklch(0.78 0.14 75 / 0.18);
+  --green:       oklch(0.80 0.14 150);
+  --red:         oklch(0.72 0.16 25);
+  --blue:        oklch(0.74 0.10 235);
+  --magenta:     oklch(0.74 0.14 330);
 }
 
+/* ─── Tailwind theme bridge ─────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg:          var(--bg);
+  --color-bg-elev:     var(--bg-elev);
+  --color-bg-soft:     var(--bg-soft);
+  --color-line:        var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg:          var(--fg);
+  --color-fg-mute:     var(--fg-mute);
+  --color-fg-dim:      var(--fg-dim);
+  --color-accent:      var(--accent);
+  --color-accent-dim:  var(--accent-dim);
+  --color-green:       var(--green);
+  --color-red:         var(--red);
+  --color-blue:        var(--blue);
+  --color-magenta:     var(--magenta);
+  --font-sans:         var(--font-inter);
+  --font-mono:         var(--font-jetbrains-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Layout utility ────────────────────────────────────────────────────────── */
+.container-site {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Base ──────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-inter), -apple-system, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
 }
+
+a { color: inherit; text-decoration: none; }
+
+::selection { background: var(--accent); color: var(--bg); }
+
+/* ─── Grid background ───────────────────────────────────────────────────────── */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, oklch(0.24 0.006 60 / 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.24 0.006 60 / 0.5) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 0%, transparent 75%);
+  z-index: 0;
+}
+
+/* ─── Terminal token colors ─────────────────────────────────────────────────── */
+.term-prompt { color: var(--fg-dim); user-select: none; }
+.term-host   { color: var(--blue); }
+.term-path   { color: var(--magenta); }
+.term-cmd    { color: var(--fg); }
+.term-flag   { color: var(--accent); }
+.term-str    { color: oklch(0.82 0.10 150); }
+.term-ok     { color: var(--green); }
+.term-warn   { color: var(--accent); }
+.term-err    { color: var(--red); }
+.term-mute   { color: var(--fg-dim); }
+
+.diff-add { color: var(--green); }
+.diff-rm  { color: var(--red); }
+.diff-eq  { color: var(--fg-dim); }
+
+/* ─── Terminal cursor ───────────────────────────────────────────────────────── */
+.term-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: var(--accent);
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: blink 1.05s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%,  50%    { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+/* ─── Command cell hover ─────────────────────────────────────────────────────── */
+.cmd-cell { background: var(--bg); transition: background 0.14s ease; }
+.cmd-cell:hover { background: var(--bg-elev); }
+
+/* ─── Responsive grid overrides ─────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .cmd-grid   { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .props-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+@media (max-width: 900px) {
+  .nav-links      { display: none !important; }
+  .hero-grid-side { grid-template-columns: minmax(0, 1fr) !important; }
+  .hiw-grid       { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .pain-grid      { grid-template-columns: 1fr !important; }
+  .pain-arrow     { transform: rotate(90deg); justify-self: start; }
+  .cta-grid       { grid-template-columns: 1fr !important; padding: 36px 28px !important; }
+  .cmd-grid       { grid-template-columns: 1fr !important; }
+  .props-grid     { grid-template-columns: 1fr !important; }
+  .install-pill   { min-width: 0 !important; width: 100% !important; }
+  .foot-grid      { grid-template-columns: 1fr !important; gap: 20px !important; align-items: center !important; justify-items: center !important; text-align: center !important; }
+  .foot-brand     { flex-direction: column !important; align-items: center !important; gap: 6px !important; }
+  .foot-sep       { display: none !important; }
+  .foot-links     { flex-wrap: wrap !important; justify-content: center !important; }
+}
+

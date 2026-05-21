@@ -1,0 +1,12 @@
+---
+title: Environment variables
+description: Environment variables that override Quiver's default behavior.
+---
+
+| Variable | Description |
+|----------|-------------|
+| `QUIVER_TOKEN` | Override the keychain token. Useful in CI. |
+| `QUIVER_GIST_ID` | Pin to a specific Gist instead of auto-discovering by filename. |
+| `QUIVER_LOCK_FILE` | Override `lockFilePath` from config. |
+| `NO_COLOR` | Disable colored output. Standard [no-color.org](https://no-color.org) behavior. |
+| `DEBUG=quiver:*` | Verbose debug logging. |

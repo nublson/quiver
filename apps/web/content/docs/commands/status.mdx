@@ -1,0 +1,20 @@
+---
+title: status
+description: Show a diff between local and remote skill locks.
+---
+
+<CmdRef signature="quiver status [--json]" since="0.1.2">
+Compares the local lock file to the remote Gist. Prints a unified diff in the terminal — green for additions, red for removals, dim for unchanged entries.
+</CmdRef>
+
+```bash title="example output"
+$ quiver status
+local  rev #19 · 4 skills
+remote rev #23 · 7 skills
+────────────────────────────────
++ frontend-design       v1.2.0
++ pdf-reading           v0.4.1
++ react-best-practices  v2.0.0
+  test-coverage         v1.1.0
+  commit-style          v0.3.0
+```

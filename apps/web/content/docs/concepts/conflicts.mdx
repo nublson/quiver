@@ -1,0 +1,8 @@
+---
+title: Conflicts
+description: How Quiver handles concurrent pushes and divergent lock files.
+---
+
+Quiver is intentionally simple: **last push wins**. If two machines push within the same minute, the later revision overwrites the earlier one in the Gist. The earlier revision is still visible in the Gist's history and can be recovered manually.
+
+Sync is the safer direction. It never deletes local skills unless you pass `--prune`, so pulling stale data can only add — never lose — skills.

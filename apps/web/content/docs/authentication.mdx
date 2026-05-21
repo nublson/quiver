@@ -1,0 +1,17 @@
+---
+title: Authentication
+description: Quiver authenticates through GitHub's device flow — the same OAuth dance the official gh CLI uses.
+---
+
+Quiver authenticates through GitHub's **device flow** — the same OAuth dance the official `gh` CLI uses. You'll be given a short code and a URL to paste it into. Quiver never sees your password, and the token never leaves your machine.
+
+## Required scopes
+
+Quiver requests the minimum scopes needed to read and write a private Gist:
+
+- `gist` — to create and update the `quiver-skill-lock.json` Gist on your account.
+- `read:user` — to display your username in `quiver whoami`.
+
+<Callout type="note">
+Tokens are stored in your OS keychain via [keytar](https://github.com/atom/node-keytar) — never in a plaintext file. To revoke access, visit [github.com/settings/applications](https://github.com/settings/applications).
+</Callout>

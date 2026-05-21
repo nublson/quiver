@@ -1,0 +1,12 @@
+---
+title: Introduction
+description: Quiver is a CLI sync layer for the global skills your AI agents share. One command pushes, one command pulls — and your skills follow you to every machine you sign in on.
+---
+
+Most AI coding agents — Claude Code, Cursor, Gemini CLI, GitHub Copilot — read from a shared global skill registry at `~/.agents/.skill-lock.json`. When you set up skills on one machine, they live in that file. Move to another machine and you're starting from scratch.
+
+Quiver fixes that. It writes your lock file to a private GitHub Gist and replays the installs on any other machine you sign in on. There is **no Quiver server**, no new account, and no proprietary backend — the Gist on your own GitHub account is the source of truth.
+
+<Callout type="tldr">
+Install Quiver. Run `quiver login` once. On every machine after that, run `quiver sync`.
+</Callout>
