@@ -27,6 +27,7 @@ export default function InstallPill({
         alignItems: "center",
         justifyContent: "space-between",
         gap: 16,
+        maxWidth: 360,
         minWidth: 320,
         fontFamily: "var(--font-jetbrains-mono)",
         fontSize: 13,

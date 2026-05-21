@@ -90,9 +90,10 @@ export default function Hero() {
             <div
               style={{
                 display: "flex",
+                flexDirection: "column",
                 flexWrap: "wrap",
                 gap: 12,
-                alignItems: "center",
+                alignItems: "flex-start",
               }}
             >
               <InstallPill cmd="npm install -g usequiver" />
