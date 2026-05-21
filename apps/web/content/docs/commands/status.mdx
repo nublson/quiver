@@ -1,0 +1,20 @@
+---
+title: status
+description: Show a diff between local and remote skill locks.
+---
+
+<CmdRef signature="quiver status [--json]" since="0.1.2">
+Compares the local lock file to the remote Gist. Prints a unified diff in the terminal — green for additions, red for removals, dim for unchanged entries.
+</CmdRef>
+
+<Terminal label="example output" copy="quiver status">
+  <span className="c-prompt">$</span> <span className="c-cmd">quiver</span> <span className="c-flag">status</span>{"\n"}
+  <span className="c-mute">local  rev #19 · 4 skills</span>{"\n"}
+  <span className="c-mute">remote rev #23 · 7 skills</span>{"\n"}
+  <span className="c-mute">────────────────────────────────</span>{"\n"}
+  <span className="c-ok">+ frontend-design       v1.2.0</span>{"\n"}
+  <span className="c-ok">+ pdf-reading           v0.4.1</span>{"\n"}
+  <span className="c-ok">+ react-best-practices  v2.0.0</span>{"\n"}
+  <span className="c-mute">  test-coverage         v1.1.0</span>{"\n"}
+  <span className="c-mute">  commit-style          v0.3.0</span>
+</Terminal>

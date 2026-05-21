@@ -1,0 +1,8 @@
+---
+title: Gist as storage
+description: How Quiver uses a private GitHub Gist as the source of truth.
+---
+
+On first push, Quiver creates a single private Gist named `quiver-skill-lock.json` on your account. Every push is a new Gist revision, which gives you a free audit log: visit the Gist on github.com and you can browse every change.
+
+There is exactly one Gist per user. Quiver finds it by listing your Gists and matching the filename — so renaming it on GitHub will break sync until you rename it back.

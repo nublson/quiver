@@ -1,0 +1,14 @@
+---
+title: Exit codes
+description: Exit codes returned by the Quiver CLI.
+---
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success. |
+| `1` | Generic failure. Check stderr. |
+| `2` | Not authenticated — run `quiver login`. |
+| `3` | Lock file missing or unreadable. |
+| `4` | Remote Gist not found. |
+| `5` | Network error reaching GitHub API. |
+| `10` | Sync produced conflicts that need manual resolution. |

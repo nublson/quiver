@@ -1,0 +1,22 @@
+---
+title: Config
+description: Optional configuration file at ~/.config/quiver/config.json.
+---
+
+Quiver reads optional configuration from `~/.config/quiver/config.json`:
+
+```json
+{
+  "deviceName":    "work-imac",
+  "lockFilePath":  "~/.agents/.skill-lock.json",
+  "gistFilename":  "quiver-skill-lock.json",
+  "autoPushOnAdd": false
+}
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `deviceName` | string | os.hostname() | Friendly name shown in `whoami` output. |
+| `lockFilePath` | string | ~/.agents/.skill-lock.json | Where to read/write the local lock file. |
+| `gistFilename` | string | quiver-skill-lock.json | Filename of the remote Gist. |
+| `autoPushOnAdd` | boolean | false | Watch the lock file and push on every change. |

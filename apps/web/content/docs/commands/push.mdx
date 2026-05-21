@@ -1,0 +1,13 @@
+---
+title: push
+description: Upload your local skill lock file to GitHub Gist.
+---
+
+<CmdRef signature="quiver push [--message <text>] [--dry-run]" since="0.1.0">
+Reads `~/.agents/.skill-lock.json` and writes it to your `quiver-skill-lock.json` Gist. Creates the Gist if it doesn't exist yet.
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--message, -m` | string | auto | Commit message for the Gist revision. |
+| `--dry-run` | boolean | false | Print the diff that would be pushed without actually pushing. |
+</CmdRef>

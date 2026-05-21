@@ -1,0 +1,16 @@
+---
+title: whoami
+description: Print the authenticated user, Gist ID, device, and last sync time.
+---
+
+<CmdRef signature="quiver whoami" since="0.1.0">
+Prints the authenticated GitHub user, the Gist ID, the device hostname, and the timestamp of the last successful sync.
+</CmdRef>
+
+<Terminal label="example output" copy="quiver whoami">
+  <span className="c-prompt">$</span> <span className="c-cmd">quiver</span> <span className="c-flag">whoami</span>{"\n"}
+  <span className="c-key">user      </span> <span className="c-cmd">nublson</span>{"\n"}
+  <span className="c-key">gist      </span> <span className="c-mute">8f3a921e4b · quiver-skill-lock.json</span>{"\n"}
+  <span className="c-key">device    </span> <span className="c-cmd">work-imac</span> <span className="c-mute">(darwin-arm64)</span>{"\n"}
+  <span className="c-key">last sync </span> <span className="c-mute">2026-05-18 14:22:09 +00:00 · rev #23</span>
+</Terminal>

@@ -1,0 +1,20 @@
+---
+title: FAQ
+description: Frequently asked questions about Quiver.
+---
+
+## Can I share a lock file with my team?
+
+Not yet. Quiver is built around *your* Gist on *your* GitHub account. Team-shared skill sets are tracked in [issue #14](https://github.com/nublson/quiver/issues/14) — open to design feedback.
+
+## Is my data private?
+
+Yes. The Gist is created private. Quiver requests the `gist` scope (which covers both public and private), but only ever writes private Gists. You can verify this in [gist.github.com/mine](https://gist.github.com/mine).
+
+## Does it work on Windows?
+
+Yes — Quiver runs on macOS, Linux, and Windows (PowerShell and WSL). Paths are normalized internally, so a lock file pushed from macOS replays cleanly on Windows.
+
+## What happens if I'm offline?
+
+`quiver sync` and `quiver push` exit with code **5** and a clear error message. Your local lock file is never touched on network failure.
