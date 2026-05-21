@@ -83,7 +83,13 @@ export default function DocsSidebar({ tree }: SidebarProps) {
           <div className="docs-side-label">{folder.name}</div>
           <ul className="docs-side-list">
             {folder.children
-              .filter((n): n is Item => n.type === "page")
+              // Skip folder index pages (e.g. /docs/commands); keep only sub-pages
+              // (/docs/commands/login). Index page is implicit in the group label.
+              .filter(
+                (n): n is Item =>
+                  n.type === "page" &&
+                  n.url.split("/").filter(Boolean).length > 2
+              )
               .map((page, j) => {
                 const anchor = urlToAnchor(page.url);
                 return (

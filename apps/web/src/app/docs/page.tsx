@@ -48,11 +48,17 @@ export default async function DocsPage() {
   const allPages = getOrderedPages(source.pageTree, pageMap);
   const rootPage = pageMap.get("/docs"); // index.mdx — used for top-level lede
 
-  const toc: TOCItemType[] = allPages.map((page) => ({
-    title: page.data.title,
-    url: `#${pageAnchor(page.slugs)}`,
-    depth: 2,
-  }));
+  const toc: TOCItemType[] = allPages.map((page) => {
+    // Nest sub-pages whose parent folder has its own index page (e.g. commands/*)
+    const parentUrl =
+      page.slugs.length > 1 ? `/docs/${page.slugs[0]}` : null;
+    const isNested = parentUrl !== null && pageMap.has(parentUrl);
+    return {
+      title: page.data.title,
+      url: `#${pageAnchor(page.slugs)}`,
+      depth: isNested ? 3 : 2,
+    };
+  });
 
   return (
     <div className="docs-content-shell">
