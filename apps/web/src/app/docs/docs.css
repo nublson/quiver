@@ -190,7 +190,9 @@
 }
 
 .docs-section {
-  margin-bottom: 64px;
+  margin-top: 56px;
+  padding-top: 48px;
+  border-top: 1px solid var(--line);
   scroll-margin-top: 84px;
 }
 
