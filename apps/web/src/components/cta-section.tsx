@@ -1,6 +1,7 @@
 import InstallPill from "@/components/install-pill";
 import { SectionLabel } from "@/components/section-label";
 import { RiArrowRightLine, RiGithubFill } from "@remixicon/react";
+import Link from "next/link";
 
 export default function CTASection() {
   return (
@@ -62,7 +63,7 @@ export default function CTASection() {
           >
             <InstallPill cmd="npm install -g usequiver" />
             <div style={{ display: "flex", gap: 10 }}>
-              <a
+              <Link
                 href="/docs"
                 style={{
                   flex: 1,
@@ -84,7 +85,7 @@ export default function CTASection() {
                 }}
               >
                 Read the docs <RiArrowRightLine size={16} />
-              </a>
+              </Link>
               <a
                 href="https://github.com/nublson/quiver"
                 target="_blank"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Root, Node, Folder, Item } from "fumadocs-core/page-tree";
+import type { Root, Folder, Item } from "fumadocs-core/page-tree";
 
 interface SidebarProps {
   tree: Root;

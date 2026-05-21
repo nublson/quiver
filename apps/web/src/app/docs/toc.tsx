@@ -38,8 +38,12 @@ export default function DocsTOC({ items }: DocsTOCProps) {
 
     headings.forEach((el) => observerRef.current!.observe(el));
 
-    if (location.hash) {
-      setActive(location.hash.slice(1));
+    // Seed active state from URL hash — use a microtask to avoid
+    // calling setState synchronously inside the effect body.
+    const hash = location.hash.slice(1);
+    if (hash) {
+      const id = hash;
+      setTimeout(() => setActive(id), 0);
     }
 
     return () => observerRef.current?.disconnect();
