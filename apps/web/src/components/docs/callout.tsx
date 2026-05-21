@@ -28,6 +28,7 @@ export default function Callout({ type = "tldr", children }: CalloutProps) {
   const s = TYPE_STYLES[type];
   return (
     <div
+      className="callout"
       style={{
         margin: "20px 0 24px",
         padding: "14px 18px",
