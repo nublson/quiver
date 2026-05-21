@@ -6,11 +6,11 @@ description: From zero to synced in two commands per machine.
 From a machine that already has the skills you want to back up:
 
 <Terminal label="on the source machine" copy="quiver login&#10;quiver push">
-  <span className="c-prompt">$</span> <span className="c-cmd">quiver</span> <span className="c-flag">login</span>{"\n"}
+  <span className="c-prompt">$</span>{" "}<span className="c-cmd">quiver</span>{" "}<span className="c-flag">login</span>{"\n"}
   <span className="c-mute">→ opens browser to github.com/login/device</span>{"\n"}
   <span className="c-ok">✓ authenticated as nublson</span>{"\n"}
   {"\n"}
-  <span className="c-prompt">$</span> <span className="c-cmd">quiver</span> <span className="c-flag">push</span>{"\n"}
+  <span className="c-prompt">$</span>{" "}<span className="c-cmd">quiver</span>{" "}<span className="c-flag">push</span>{"\n"}
   <span className="c-mute">reading ~/.agents/.skill-lock.json … 7 skills</span>{"\n"}
   <span className="c-mute">writing gist://nublson/quiver-skill-lock.json</span>{"\n"}
   <span className="c-ok">✓ pushed rev #23</span>
@@ -19,10 +19,10 @@ From a machine that already has the skills you want to back up:
 Then, on every other machine you log into:
 
 <Terminal label="on the new machine" copy="quiver login&#10;quiver sync">
-  <span className="c-prompt">$</span> <span className="c-cmd">quiver</span> <span className="c-flag">login</span>{"\n"}
+  <span className="c-prompt">$</span>{" "}<span className="c-cmd">quiver</span>{" "}<span className="c-flag">login</span>{"\n"}
   <span className="c-ok">✓ authenticated as nublson</span>{"\n"}
   {"\n"}
-  <span className="c-prompt">$</span> <span className="c-cmd">quiver</span> <span className="c-flag">sync</span>{"\n"}
+  <span className="c-prompt">$</span>{" "}<span className="c-cmd">quiver</span>{" "}<span className="c-flag">sync</span>{"\n"}
   <span className="c-mute">remote rev #23 · 7 skills · local rev #19 · 4 skills</span>{"\n"}
   <span className="c-ok">+ frontend-design</span>{"\n"}
   <span className="c-ok">+ pdf-reading</span>{"\n"}
