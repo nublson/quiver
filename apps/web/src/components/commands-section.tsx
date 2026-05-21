@@ -1,3 +1,5 @@
+import { SectionLabel } from "@/components/section-label";
+
 const COMMANDS = [
   {
     cmd: ["quiver", "login"],
@@ -34,23 +36,8 @@ const COMMANDS = [
 export default function CommandsSection() {
   return (
     <section id="commands" style={{ padding: "96px 0", position: "relative" }}>
-      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 32px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            fontFamily: "var(--font-jetbrains-mono)",
-            fontSize: 11.5,
-            letterSpacing: "0.08em",
-            color: "var(--accent)",
-            textTransform: "uppercase",
-            marginBottom: 16,
-          }}
-        >
-          <span style={{ width: 16, height: 1, background: "var(--accent)", display: "inline-block" }} />
-          01 / Surface
-        </div>
+      <div className="container-site">
+        <SectionLabel>01 / Surface</SectionLabel>
 
         <h2
           style={{
@@ -129,9 +116,7 @@ export default function CommandsSection() {
                 <span style={{ color: "var(--accent)" }}>$</span>
                 <span style={{ fontWeight: 500 }}>{c.cmd[0]}</span>
                 <span style={{ color: "var(--accent)", fontWeight: 500 }}>{c.cmd[1]}</span>
-                {c.cmd[2] && (
-                  <span style={{ color: "var(--fg-dim)" }}>{c.cmd[2]}</span>
-                )}
+                {c.cmd[2] && <span style={{ color: "var(--fg-dim)" }}>{c.cmd[2]}</span>}
               </div>
 
               <h3
@@ -147,9 +132,7 @@ export default function CommandsSection() {
                 {c.title}
               </h3>
 
-              <p style={{ fontSize: 14.5, color: "var(--fg-mute)", lineHeight: 1.5 }}>
-                {c.desc}
-              </p>
+              <p style={{ fontSize: 14.5, color: "var(--fg-mute)", lineHeight: 1.5 }}>{c.desc}</p>
             </div>
           ))}
         </div>

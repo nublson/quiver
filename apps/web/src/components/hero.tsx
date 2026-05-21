@@ -1,19 +1,12 @@
 import Terminal from "@/components/terminal";
 import InstallPill from "@/components/install-pill";
+import { ArrowIcon } from "@/components/icons";
 import { CLI_VERSION } from "@/lib/version";
-
-function ArrowIcon() {
-  return (
-    <svg width={14} height={14} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
-      <path d="M3 8h10M9 4l4 4-4 4" />
-    </svg>
-  );
-}
 
 export default function Hero() {
   return (
     <header style={{ padding: "96px 0 64px", position: "relative" }}>
-      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 32px" }}>
+      <div className="container-site">
         <div
           className="hero-grid-side"
           style={{
@@ -82,12 +75,7 @@ export default function Hero() {
             >
               Quiver is a CLI sync layer for the global skills your agents
               share. Push from one machine, run{" "}
-              <code
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono)",
-                  color: "var(--accent)",
-                }}
-              >
+              <code style={{ fontFamily: "var(--font-jetbrains-mono)", color: "var(--accent)" }}>
                 quiver sync
               </code>{" "}
               on the next, and pick up exactly where you left off — no dotfile

@@ -62,9 +62,7 @@ export default function PainStrip() {
             // with quiver
           </div>
           <div style={{ fontSize: 17, lineHeight: 1.5, color: "var(--fg)" }}>
-            <em style={{ color: "var(--accent)", fontStyle: "normal" }}>
-              quiver sync
-            </em>
+            <em style={{ color: "var(--accent)", fontStyle: "normal" }}>quiver sync</em>
             &nbsp;— one command, every skill, every agent, every device.
           </div>
         </div>

@@ -1,3 +1,5 @@
+import { SectionLabel } from "@/components/section-label";
+
 const PROPS = [
   {
     glyph: "01",
@@ -34,23 +36,8 @@ const PROPS = [
 export default function PropsSection() {
   return (
     <section id="why" style={{ padding: "96px 0 0", position: "relative" }}>
-      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 32px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            fontFamily: "var(--font-jetbrains-mono)",
-            fontSize: 11.5,
-            letterSpacing: "0.08em",
-            color: "var(--accent)",
-            textTransform: "uppercase",
-            marginBottom: 16,
-          }}
-        >
-          <span style={{ width: 16, height: 1, background: "var(--accent)", display: "inline-block" }} />
-          03 / Why
-        </div>
+      <div className="container-site">
+        <SectionLabel>03 / Why</SectionLabel>
 
         <h2
           style={{
@@ -79,13 +66,7 @@ export default function PropsSection() {
         }}
       >
         {PROPS.map((p, i) => (
-          <div
-            key={i}
-            style={{
-              background: "var(--bg)",
-              padding: "32px 28px",
-            }}
-          >
+          <div key={i} style={{ background: "var(--bg)", padding: "32px 28px" }}>
             <div
               style={{
                 fontFamily: "var(--font-jetbrains-mono)",
@@ -108,9 +89,7 @@ export default function PropsSection() {
             >
               {p.h}
             </h4>
-            <p style={{ fontSize: 14, color: "var(--fg-mute)", lineHeight: 1.55 }}>
-              {p.p}
-            </p>
+            <p style={{ fontSize: 14, color: "var(--fg-mute)", lineHeight: 1.55 }}>{p.p}</p>
           </div>
         ))}
       </div>

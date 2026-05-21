@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SectionLabel } from "@/components/section-label";
 
 const STEPS = [
   {
@@ -104,9 +105,7 @@ function DeviceTopology({ active }: { active: number }) {
           gist://nublson/quiver-skill-lock.json
         </span>
         <span style={{ color: "var(--fg-dim)" }}>
-          {active >= 1
-            ? `rev #23 · ${devices[0].skills.length} skills`
-            : "rev #22"}
+          {active >= 1 ? `rev #23 · ${devices[0].skills.length} skills` : "rev #22"}
         </span>
       </div>
 
@@ -134,14 +133,7 @@ function DeviceTopology({ active }: { active: number }) {
                 position: "relative",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: 14,
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <span style={{ color: "var(--fg)", fontWeight: 600 }}>{d.name}</span>
                 <span
                   style={{
@@ -154,22 +146,12 @@ function DeviceTopology({ active }: { active: number }) {
                     textTransform: "uppercase",
                   }}
                 >
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: 999,
-                      background: c.fg,
-                      display: "inline-block",
-                    }}
-                  />
+                  <span style={{ width: 6, height: 6, borderRadius: 999, background: c.fg, display: "inline-block" }} />
                   {c.label}
                 </span>
               </div>
 
-              <div style={{ color: "var(--fg-dim)", fontSize: 11 }}>
-                ~/.agents/.skill-lock.json
-              </div>
+              <div style={{ color: "var(--fg-dim)", fontSize: 11 }}>~/.agents/.skill-lock.json</div>
 
               {d.skills.length > 0 ? (
                 <ul style={{ listStyle: "none", marginTop: 12, display: "flex", flexDirection: "column", gap: 5 }}>
@@ -228,23 +210,8 @@ export default function HowItWorks() {
         borderBottom: "1px solid var(--line)",
       }}
     >
-      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 32px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            fontFamily: "var(--font-jetbrains-mono)",
-            fontSize: 11.5,
-            letterSpacing: "0.08em",
-            color: "var(--accent)",
-            textTransform: "uppercase",
-            marginBottom: 16,
-          }}
-        >
-          <span style={{ width: 16, height: 1, background: "var(--accent)", display: "inline-block" }} />
-          02 / Flow
-        </div>
+      <div className="container-site">
+        <SectionLabel>02 / Flow</SectionLabel>
 
         <h2
           style={{

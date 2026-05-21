@@ -11,9 +11,7 @@ export default function Footer() {
         color: "var(--fg-dim)",
       }}
     >
-      <div
-        style={{ maxWidth: 1240, margin: "0 auto", padding: "0 32px" }}
-      >
+      <div className="container-site">
         <div
           className="foot-grid"
           style={{
@@ -39,24 +37,16 @@ export default function Footer() {
                 href="https://nublson.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  color: "var(--accent)",
-                  borderBottom: "1px solid var(--accent)",
-                }}
+                style={{ color: "var(--accent)", borderBottom: "1px solid var(--accent)" }}
               >
                 Nubelson
               </a>
             </span>
             <span className="foot-sep" style={{ color: "var(--fg-dim)" }}>·</span>
-            <span style={{ color: "var(--fg-dim)" }}>
-              for developers, with love and coffee
-            </span>
+            <span style={{ color: "var(--fg-dim)" }}>for developers, with love and coffee</span>
           </div>
 
-          <div
-            className="foot-links"
-            style={{ display: "flex", gap: 24 }}
-          >
+          <div className="foot-links" style={{ display: "flex", gap: 24 }}>
             <a
               href="https://github.com/nublson/quiver"
               target="_blank"
