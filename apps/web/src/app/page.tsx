@@ -1,24 +1,21 @@
-import Hero from "@/components/hero";
-import PainStrip from "@/components/pain-strip";
-import CommandsSection from "@/components/commands-section";
-import HowItWorks from "@/components/how-it-works";
 import AgentsStrip from "@/components/agents-strip";
-import PropsSection from "@/components/props-section";
+import CommandsSection from "@/components/commands-section";
 import CTASection from "@/components/cta-section";
+import Hero from "@/components/hero";
+import HowItWorks from "@/components/how-it-works";
+import PainStrip from "@/components/pain-strip";
+import PropsSection from "@/components/props-section";
 
 export default function Home() {
   return (
-    <>
-      <div className="grid-bg" />
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <Hero />
-        <PainStrip />
-        <CommandsSection />
-        <HowItWorks />
-        <AgentsStrip />
-        <PropsSection />
-        <CTASection />
-      </div>
-    </>
+    <div className="relative z-[1]">
+      <Hero />
+      <PainStrip />
+      <CommandsSection />
+      <HowItWorks />
+      <AgentsStrip />
+      <PropsSection />
+      <CTASection />
+    </div>
   );
 }

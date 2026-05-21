@@ -1,7 +1,7 @@
+import Footer from "@/components/footer";
+import Nav from "@/components/nav";
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import Nav from "@/components/nav";
-import Footer from "@/components/footer";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,7 +33,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Nav />
-        <main className="flex flex-col flex-1">{children}</main>
+        <main className="flex flex-col flex-1">
+          <div className="grid-bg" />
+          {children}
+        </main>
         <Footer />
       </body>
     </html>
