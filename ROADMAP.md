@@ -140,29 +140,27 @@
 
 ---
 
-## Phase 6 — Web (Marketing + Docs)
-
-
+## Phase 6 — Web (Marketing + Docs) ✅
 
 > Public-facing site. No auth, no dashboard — purely informational.
 
 **Marketing (`/`)**
 
-- [ ] Hero — one-line value prop + install snippet (`npm install -g usequiver`)
-- [ ] How it works — 3-step visual (push → cloud → sync)
-- [ ] Command reference quick-look
-- [ ] CTA to docs
+- [x] Hero — one-line value prop + install snippet (`npm install -g usequiver`)
+- [x] How it works — 3-step visual (push → cloud → sync)
+- [x] Command reference quick-look
+- [x] CTA to docs
 
 **Docs (`/docs`) — Fumadocs**
 
-- [ ] Install and configure Fumadocs in `apps/web`
-- [ ] Getting Started (install, login, first push, sync on a new device)
-- [ ] Commands — `login`, `push`, `sync`, `status`, `remove`
-- [ ] How sync works (lock file, additive-only, conflict model)
-- [ ] `.skill-lock.json` format reference
-- [ ] FAQ (quiver vs npx skills, what quiver does not do, multiple devices)
+- [x] Install and configure Fumadocs in `apps/web`
+- [x] Getting Started (install, login, first push, sync on a new device)
+- [x] Commands — `login`, `push`, `sync`, `status`, `remove`
+- [x] How sync works (lock file, additive-only, conflict model)
+- [x] `.skill-lock.json` format reference
+- [x] FAQ (quiver vs npx skills, what quiver does not do, multiple devices)
 
-**Deliverable:** Someone landing on the site understands what quiver is and can get started.
+**Deliverable:** Someone landing on the site understands what quiver is and can get started. ✅
 
 ---
 
