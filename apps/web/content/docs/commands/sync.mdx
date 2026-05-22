@@ -1,18 +1,35 @@
 ---
 title: sync
-description: Pull the remote lock and replay missing skill installs.
+description: Pull the remote lock and replay missing skill installs in parallel.
 ---
 
-<CmdRef signature="quiver sync [--only <skill>] [--yes]" since="0.1.0">
-Pulls the remote lock file, diffs it against the local one, and runs `npx skills add` for every entry that's missing locally. **Additive only** — never removes local skills.
-
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| `--only` | string | — | Sync just one skill by name. Repeatable. |
-| `--yes, -y` | boolean | false | Skip the confirmation prompt. |
-| `--prune` | boolean | false | Remove local skills that aren't in the remote lock. Destructive. |
+<CmdRef signature="quiver sync" since="0.1.0">
+Pulls the remote lock file, diffs it against the local one, and installs every missing skill. Skills are grouped by source repo so each repository is cloned at most once. All groups run concurrently with live per-source progress. **Additive only** — never removes or overwrites local skills.
 </CmdRef>
 
-<Callout type="warn">
-`--prune` deletes local skills. Use `quiver status` to preview the diff before running it, and consider `quiver push` first if your local set is the one you want to keep.
+## What happens
+
+1. Fetches the remote lock from your private Gist
+2. Computes the diff: skills present remotely but missing locally
+3. Groups missing skills by `sourceUrl` — one `npx skills add` invocation per repo
+4. Runs all groups in parallel with a live progress line per source
+5. Re-reads the local lock file and upserts only the skills that succeeded
+6. Prints a summary: `N skills added, M already up to date`
+
+If one source group fails, the others still complete and their skills are written to the lock file. The command exits with an error listing which sources failed.
+
+## Example output
+
+```bash
+$ quiver sync
+✔ anthropics/skills          (4 skills, 9.1s)
+✔ vercel-labs/agent-skills   (2 skills, 7.8s)
+✔ supabase/agent-skills      (2 skills, 7.1s)
+✔ prisma/skills              (4 skills, 7.5s)
+✔ better-auth/skills         (2 skills, 6.7s)
+25 skills added, 0 already up to date
+```
+
+<Callout type="note">
+In non-TTY environments (CI, piped output) listr2 falls back to plain line output — one line per source group, no spinner characters.
 </Callout>

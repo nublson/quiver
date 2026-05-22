@@ -14,7 +14,7 @@ const STEPS = [
   },
   {
     h: "On a new device: quiver sync",
-    p: "Quiver fetches the remote lock, diffs it against the local one, and runs npx skills add for every missing entry. Additive only — your local work is never overwritten.",
+    p: "Quiver fetches the remote lock, groups missing skills by source repo, and installs all groups in parallel with live progress per source. Lock file is reconciled after every group settles. Additive only — your local work is never overwritten.",
   },
   {
     h: "Your skills follow you",
