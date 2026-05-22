@@ -35,7 +35,7 @@
     "./dist",
     "./oclif.manifest.json"
   ],
-  "homepage": "https://github.com/nublson/quiver",
+  "homepage": "https://quiver.nublson.com",
   "keywords": [
     "quiver",
     "usequiver",
