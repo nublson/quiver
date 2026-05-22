@@ -1,5 +1,11 @@
 # quiver
 
+## 0.2.4
+
+### Patch Changes
+
+- 322e8a9: update homepage URL in package.json to reflect new site address
+
 ## 0.2.3
 
 ### Patch Changes
