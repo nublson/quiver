@@ -3,6 +3,27 @@ import {Command} from '@oclif/core'
 import {readCredentials, writeCredentials} from '../lib/credentials.js'
 import {findOrCreateGist, readGist} from '../lib/gist.js'
 import {readLockFileIfExists} from '../lib/lock-file.js'
+import {cyan, dim, green, yellow} from '../lib/ui.js'
+
+function printSection(
+  log: (s: string) => void,
+  header: string,
+  names: string[],
+  getSource: (name: string) => string,
+): void {
+  log(header)
+  if (names.length === 0) return
+
+  let maxLen = 0
+  for (const n of names) if (n.length > maxLen) maxLen = n.length
+  for (const name of names) {
+    const source = getSource(name)
+    const suffix = source ? ' '.repeat(maxLen - name.length + 3) + dim(source) : ''
+    log(`     ${name}${suffix}`)
+  }
+
+  log('')
+}
 
 export default class Status extends Command {
   static description = 'Show a diff between your local and remote skill lock'
@@ -35,8 +56,34 @@ export default class Status extends Command {
       return
     }
 
-    this.log(`  local only:   ${localOnly.length > 0 ? localOnly.join(', ') : '(none)'}`)
-    this.log(`  remote only:  ${remoteOnly.length > 0 ? remoteOnly.join(', ') : '(none)'}`)
-    this.log(`  in sync:      ${inSync.length > 0 ? inSync.join(', ') : '(none)'}`)
+    this.log('')
+    this.log(`  comparing local ↔ remote  ${dim(`(gist · @${creds.username})`)}`)
+    this.log('')
+
+    const localSigil = localOnly.length > 0 ? yellow('↑') : dim('↑')
+    const localHint = localOnly.length > 0 ? dim('   → run quiver push to upload') : ''
+    printSection(
+      this.log.bind(this),
+      `  ${localSigil} local only   (${localOnly.length})${localHint}`,
+      localOnly,
+      () => '',
+    )
+
+    const remoteSigil = remoteOnly.length > 0 ? cyan('↓') : dim('↓')
+    const remoteHint = remoteOnly.length > 0 ? dim('   → run quiver sync to install') : ''
+    printSection(
+      this.log.bind(this),
+      `  ${remoteSigil} remote only  (${remoteOnly.length})${remoteHint}`,
+      remoteOnly,
+      (name) => remote.skills[name]?.source ?? '',
+    )
+
+    const syncSigil = inSync.length > 0 ? green('✔') : dim('✔')
+    printSection(
+      this.log.bind(this),
+      `  ${syncSigil} in sync      (${inSync.length})`,
+      inSync,
+      (name) => local.skills[name]?.source ?? '',
+    )
   }
 }

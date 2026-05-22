@@ -41,23 +41,23 @@ const credentials = {
   username: 'testuser',
 }
 
-function makeSkillEntry(name: string) {
+function makeSkillEntry(name: string, source = 'anthropics/skills') {
   return {
     installedAt: '2026-01-01T00:00:00Z',
     skillFolderHash: 'abc',
     skillPath: `skills/${name}/SKILL.md`,
-    source: 'anthropics/skills',
+    source,
     sourceType: 'github',
     sourceUrl: 'https://github.com/anthropics/skills.git',
     updatedAt: '2026-01-01T00:00:00Z',
   }
 }
 
-function makeLock(skillNames: string[]) {
+function makeLock(skillNames: string[], source?: string) {
   return {
     dismissed: {},
     lastSelectedAgents: [],
-    skills: Object.fromEntries(skillNames.map((n) => [n, makeSkillEntry(n)])),
+    skills: Object.fromEntries(skillNames.map((n) => [n, makeSkillEntry(n, source)])),
     version: 3,
   }
 }
@@ -69,6 +69,10 @@ function makeCmd() {
     throw new Error(String(msg))
   })
   return {cmd, errorSpy, logSpy}
+}
+
+function loggedLines(logSpy: ReturnType<typeof vi.spyOn>) {
+  return logSpy.mock.calls.map((c) => String(c[0]))
 }
 
 describe('status command', () => {
@@ -142,9 +146,11 @@ describe('status command', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(logSpy).toHaveBeenCalledWith('  local only:   (none)')
-    expect(logSpy).toHaveBeenCalledWith('  remote only:  data-analysis')
-    expect(logSpy).toHaveBeenCalledWith('  in sync:      (none)')
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('local only') && l.includes('(0)'))).toBe(true)
+    expect(lines.some((l) => l.includes('remote only') && l.includes('(1)'))).toBe(true)
+    expect(lines.some((l) => l.includes('in sync') && l.includes('(0)'))).toBe(true)
+    expect(lines.some((l) => l.includes('data-analysis'))).toBe(true)
   })
 
   it('shows local-only skills', async () => {
@@ -156,9 +162,11 @@ describe('status command', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(logSpy).toHaveBeenCalledWith('  local only:   pdf-reading')
-    expect(logSpy).toHaveBeenCalledWith('  remote only:  (none)')
-    expect(logSpy).toHaveBeenCalledWith('  in sync:      (none)')
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('local only') && l.includes('(1)'))).toBe(true)
+    expect(lines.some((l) => l.includes('remote only') && l.includes('(0)'))).toBe(true)
+    expect(lines.some((l) => l.includes('in sync') && l.includes('(0)'))).toBe(true)
+    expect(lines.some((l) => l.includes('pdf-reading'))).toBe(true)
   })
 
   it('shows remote-only skills', async () => {
@@ -170,12 +178,52 @@ describe('status command', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(logSpy).toHaveBeenCalledWith('  local only:   (none)')
-    expect(logSpy).toHaveBeenCalledWith('  remote only:  data-analysis')
-    expect(logSpy).toHaveBeenCalledWith('  in sync:      (none)')
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('remote only') && l.includes('(1)'))).toBe(true)
+    expect(lines.some((l) => l.includes('data-analysis'))).toBe(true)
+    expect(lines.some((l) => l.includes('→ run quiver sync to install'))).toBe(true)
   })
 
-  it('shows all in-sync skills', async () => {
+  it('shows action hint for local-only when non-empty', async () => {
+    credMocks.readCredentials.mockResolvedValue(credentials)
+    gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
+    gistMocks.readGist.mockResolvedValue(makeLock([]))
+    lockMocks.readLockFileIfExists.mockResolvedValue(makeLock(['pdf-reading']))
+
+    const {cmd, logSpy} = makeCmd()
+    await cmd.run()
+
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('→ run quiver push to upload'))).toBe(true)
+  })
+
+  it('shows source repo next to remote-only skills', async () => {
+    credMocks.readCredentials.mockResolvedValue(credentials)
+    gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
+    gistMocks.readGist.mockResolvedValue(makeLock(['data-analysis'], 'vercel-labs/skills'))
+    lockMocks.readLockFileIfExists.mockResolvedValue(makeLock([]))
+
+    const {cmd, logSpy} = makeCmd()
+    await cmd.run()
+
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('data-analysis') && l.includes('vercel-labs/skills'))).toBe(true)
+  })
+
+  it('shows source repo next to in-sync skills', async () => {
+    credMocks.readCredentials.mockResolvedValue(credentials)
+    gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
+    gistMocks.readGist.mockResolvedValue(makeLock(['frontend-design'], 'anthropics/skills'))
+    lockMocks.readLockFileIfExists.mockResolvedValue(makeLock(['frontend-design'], 'anthropics/skills'))
+
+    const {cmd, logSpy} = makeCmd()
+    await cmd.run()
+
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('frontend-design') && l.includes('anthropics/skills'))).toBe(true)
+  })
+
+  it('shows all in-sync skills each on their own line', async () => {
     credMocks.readCredentials.mockResolvedValue(credentials)
     gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
     gistMocks.readGist.mockResolvedValue(makeLock(['frontend-design', 'docx']))
@@ -184,9 +232,10 @@ describe('status command', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(logSpy).toHaveBeenCalledWith('  local only:   (none)')
-    expect(logSpy).toHaveBeenCalledWith('  remote only:  (none)')
-    expect(logSpy).toHaveBeenCalledWith('  in sync:      docx, frontend-design')
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('in sync') && l.includes('(2)'))).toBe(true)
+    expect(lines.filter((l) => l.includes('docx')).length).toBeGreaterThanOrEqual(1)
+    expect(lines.filter((l) => l.includes('frontend-design')).length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows mixed diff across all three categories', async () => {
@@ -198,9 +247,13 @@ describe('status command', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(logSpy).toHaveBeenCalledWith('  local only:   pdf-reading')
-    expect(logSpy).toHaveBeenCalledWith('  remote only:  data-analysis')
-    expect(logSpy).toHaveBeenCalledWith('  in sync:      frontend-design')
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('local only') && l.includes('(1)'))).toBe(true)
+    expect(lines.some((l) => l.includes('remote only') && l.includes('(1)'))).toBe(true)
+    expect(lines.some((l) => l.includes('in sync') && l.includes('(1)'))).toBe(true)
+    expect(lines.some((l) => l.includes('pdf-reading'))).toBe(true)
+    expect(lines.some((l) => l.includes('data-analysis'))).toBe(true)
+    expect(lines.some((l) => l.includes('frontend-design'))).toBe(true)
   })
 
   it('sorts skills alphabetically within each category', async () => {
@@ -212,6 +265,24 @@ describe('status command', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(logSpy).toHaveBeenCalledWith('  remote only:  apple, mango, zebra')
+    const lines = loggedLines(logSpy)
+    const appleIdx = lines.findIndex((l) => l.includes('apple'))
+    const mangoIdx = lines.findIndex((l) => l.includes('mango'))
+    const zebraIdx = lines.findIndex((l) => l.includes('zebra'))
+    expect(appleIdx).toBeLessThan(mangoIdx)
+    expect(mangoIdx).toBeLessThan(zebraIdx)
+  })
+
+  it('includes username and gist context in the header', async () => {
+    credMocks.readCredentials.mockResolvedValue(credentials)
+    gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
+    gistMocks.readGist.mockResolvedValue(makeLock(['frontend-design']))
+    lockMocks.readLockFileIfExists.mockResolvedValue(makeLock(['frontend-design']))
+
+    const {cmd, logSpy} = makeCmd()
+    await cmd.run()
+
+    const lines = loggedLines(logSpy)
+    expect(lines.some((l) => l.includes('testuser') && l.includes('gist'))).toBe(true)
   })
 })

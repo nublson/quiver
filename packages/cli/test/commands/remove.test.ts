@@ -119,14 +119,14 @@ describe('remove', () => {
     expect(spawnMocks.spawn).toHaveBeenCalledWith(
       'npx',
       ['skills', 'rm', 'skills/frontend-design/SKILL.md'],
-      expect.objectContaining({shell: process.platform === 'win32', stdio: 'inherit'}),
+      expect.objectContaining({shell: process.platform === 'win32', stdio: 'pipe'}),
     )
 
     const writtenLock = lockMocks.writeLockFile.mock.calls[0][0]
     expect(writtenLock.skills['frontend-design']).toBeUndefined()
 
     expect(gistMocks.writeGist).toHaveBeenCalledWith(GIST_ID, writtenLock, GITHUB_TOKEN)
-    expect(logSpy).toHaveBeenCalledWith('Removed frontend-design and pushed updated lock')
+    expect(logSpy).toHaveBeenCalledWith('removed frontend-design')
   })
 
   it('errors when skill is not in lock file', async () => {
