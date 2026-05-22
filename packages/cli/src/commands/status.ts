@@ -1,5 +1,7 @@
 import {Command} from '@oclif/core'
 
+import type {SkillEntry} from '../lib/types.js'
+
 import {readCredentials, writeCredentials} from '../lib/credentials.js'
 import {findOrCreateGist, readGist} from '../lib/gist.js'
 import {readLockFileIfExists} from '../lib/lock-file.js'
@@ -42,10 +44,11 @@ export default class Status extends Command {
     }
 
     const remote = await readGist(gistId, creds.githubToken)
-    const local = (await readLockFileIfExists()) ?? {skills: {}}
+    const localSkills: Record<string, SkillEntry> =
+      (await readLockFileIfExists())?.skills ?? {}
 
     const remoteKeys = new Set(Object.keys(remote.skills))
-    const localKeys = new Set(Object.keys(local.skills))
+    const localKeys = new Set(Object.keys(localSkills))
 
     const localOnly = [...localKeys].filter((k) => !remoteKeys.has(k)).sort()
     const remoteOnly = [...remoteKeys].filter((k) => !localKeys.has(k)).sort()
@@ -83,7 +86,7 @@ export default class Status extends Command {
       this.log.bind(this),
       `  ${syncSigil} in sync      (${inSync.length})`,
       inSync,
-      (name) => local.skills[name]?.source ?? '',
+      (name) => localSkills[name]?.source ?? '',
     )
   }
 }
