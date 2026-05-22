@@ -1,5 +1,11 @@
 # quiver
 
+## 0.2.6
+
+### Patch Changes
+
+- c7dcc29: Merge pull request #27 from nublson/feat/cli-ux-improvements
+
 ## 0.2.5
 
 ### Patch Changes
