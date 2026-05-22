@@ -1,22 +1,33 @@
 import {Command} from '@oclif/core'
+import {Listr} from 'listr2'
 import {spawn} from 'node:child_process'
 
 import type {SkillEntry} from '../lib/types.js'
 
 import {readCredentials, writeCredentials} from '../lib/credentials.js'
 import {findOrCreateGist, readGist} from '../lib/gist.js'
-import {readLockFileIfExists} from '../lib/lock-file.js'
+import {readLockFileIfExists, writeLockFile} from '../lib/lock-file.js'
 
-function runSkillsAdd(sourceUrl: string, skillName: string): Promise<void> {
+function runSkillsAdd(sourceUrl: string, skillNames: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
+    const skillFlags = skillNames.flatMap((name) => ['--skill', name])
     const child = spawn(
       'npx',
-      ['skills', 'add', sourceUrl, '--skill', skillName, '-g', '-y'],
+      ['skills', 'add', sourceUrl, ...skillFlags, '-g', '-y'],
       {
         shell: process.platform === 'win32',
-        stdio: 'inherit',
+        stdio: 'pipe',
       },
     )
+
+    let output = ''
+    child.stdout?.on('data', (chunk: Buffer) => {
+      output += chunk.toString()
+    })
+    child.stderr?.on('data', (chunk: Buffer) => {
+      output += chunk.toString()
+    })
+
     child.on('error', reject)
     child.on('close', (code, signal) => {
       if (code === 0) {
@@ -24,13 +35,10 @@ function runSkillsAdd(sourceUrl: string, skillName: string): Promise<void> {
         return
       }
 
-      reject(
-        new Error(
-          signal
-            ? `npx skills add exited with signal ${signal}`
-            : `npx skills add exited with code ${code}`,
-        ),
-      )
+      const msg = signal
+        ? `npx skills add exited with signal ${signal}`
+        : `npx skills add exited with code ${code}`
+      reject(Object.assign(new Error(msg), {output}))
     })
   })
 }
@@ -66,28 +74,76 @@ export default class Sync extends Command {
 
     const missingNames = Object.keys(remoteSkills).filter((name) => !localKeys.has(name))
 
-    let added = 0
-    const installAt = async (index: number): Promise<void> => {
-      if (index >= missingNames.length) return
-      const name = missingNames[index]!
+    const groups = new Map<string, string[]>()
+    for (const name of missingNames) {
       const entry = remoteSkills[name] as SkillEntry | undefined
       if (!entry?.sourceUrl || !entry.skillPath) {
         throw new Error(`Remote lock entry for "${name}" is missing sourceUrl or skillPath.`)
       }
 
-      // Use the lock file entry key as the skill name (e.g. "vercel-react-best-practices"),
-      // not the folder derived from skillPath (e.g. "react-best-practices") — they can differ
-      // when the skill registry uses a vendor-prefixed name.
-      await runSkillsAdd(entry.sourceUrl, name)
-      added++
-      await installAt(index + 1)
+      const bucket = groups.get(entry.sourceUrl) ?? []
+      bucket.push(name)
+      groups.set(entry.sourceUrl, bucket)
     }
 
-    await installAt(0)
+    const succeededUrls = new Set<string>()
+    const failures: Array<{label: string; output: string; sourceUrl: string}> = []
 
-    const upToDate = Object.keys(remoteSkills).length - missingNames.length
-    this.log(
-      `${added} skill${added === 1 ? '' : 's'} added, ${upToDate} already up to date`,
+    const tasks = new Listr(
+      [...groups.entries()].map(([sourceUrl, skillNames]) => {
+        const label = (remoteSkills[skillNames[0]!] as SkillEntry).source
+        const skillWord = skillNames.length === 1 ? 'skill' : 'skills'
+        return {
+          async task(_: unknown, wrapper: {title: string}) {
+            const start = Date.now()
+            try {
+              await runSkillsAdd(sourceUrl, skillNames)
+              const elapsed = ((Date.now() - start) / 1000).toFixed(1)
+              wrapper.title = `${label} (${skillNames.length} ${skillWord}, ${elapsed}s)`
+              succeededUrls.add(sourceUrl)
+            } catch (error) {
+              const output = (error as {output?: string}).output ?? String(error)
+              failures.push({label, output, sourceUrl})
+              throw error
+            }
+          },
+          title: `${label} (${skillNames.length} ${skillWord})`,
+        }
+      }),
+      {concurrent: true, exitOnError: false},
     )
+
+    try {
+      await tasks.run()
+    } catch {
+      // failures already collected above; handled below
+    }
+
+    const succeededNames = missingNames.filter(
+      (name) => succeededUrls.has((remoteSkills[name] as SkillEntry).sourceUrl),
+    )
+
+    if (succeededNames.length > 0) {
+      const currentLock = (await readLockFileIfExists()) ?? localLock
+      const updatedSkills = {...currentLock.skills}
+      for (const name of succeededNames) {
+        updatedSkills[name] = remoteSkills[name] as SkillEntry
+      }
+
+      await writeLockFile({...currentLock, skills: updatedSkills})
+    }
+
+    const added = succeededNames.length
+    const upToDate = Object.keys(remoteSkills).length - missingNames.length
+    this.log(`${added} skill${added === 1 ? '' : 's'} added, ${upToDate} already up to date`)
+
+    if (failures.length > 0) {
+      for (const {label, output} of failures) {
+        this.log(`\nFailed to install from ${label}:`)
+        if (output) this.log(output.trim())
+      }
+
+      this.error(`${failures.length} source${failures.length === 1 ? '' : 's'} failed to install`)
+    }
   }
 }
