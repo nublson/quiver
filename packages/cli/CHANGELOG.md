@@ -1,5 +1,11 @@
 # quiver
 
+## 0.2.5
+
+### Patch Changes
+
+- 86f8d0f: Merge pull request #25 from nublson/feat/sync-performance
+
 ## 0.2.4
 
 ### Patch Changes
