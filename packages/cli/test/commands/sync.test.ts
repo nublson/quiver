@@ -59,12 +59,29 @@ const skillEntry = {
   updatedAt: '2026-01-01T00:00:00Z',
 }
 
+const vercelSkillEntry = {
+  installedAt: '2026-01-01T00:00:00Z',
+  skillFolderHash: 'def',
+  skillPath: 'skills/react-best-practices/SKILL.md',
+  source: 'vercel-labs/agent-skills',
+  sourceType: 'github',
+  sourceUrl: 'https://github.com/vercel-labs/agent-skills.git',
+  updatedAt: '2026-01-01T00:00:00Z',
+}
+
 const remoteLockOne = {
   dismissed: {},
   lastSelectedAgents: [],
   skills: {
     'frontend-design': skillEntry,
   },
+  version: 3,
+}
+
+const emptyLocalLock = {
+  dismissed: {},
+  lastSelectedAgents: [],
+  skills: {},
   version: 3,
 }
 
@@ -108,12 +125,7 @@ describe('sync', () => {
       credMocks.readCredentials.mockResolvedValue(credentials)
       gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
       gistMocks.readGist.mockResolvedValue(remoteLockOne)
-      lockMocks.readLockFileIfExists.mockResolvedValue({
-        dismissed: {},
-        lastSelectedAgents: [],
-        skills: {},
-        version: 3,
-      })
+      lockMocks.readLockFileIfExists.mockResolvedValue(emptyLocalLock)
 
       const {cmd, logSpy} = makeCmd()
       await cmd.run()
@@ -144,9 +156,8 @@ describe('sync', () => {
         lastSelectedAgents: [],
         skills: {
           'vercel-react-best-practices': {
-            ...skillEntry,
+            ...vercelSkillEntry,
             skillPath: 'skills/react-best-practices/SKILL.md',
-            sourceUrl: 'https://github.com/vercel-labs/agent-skills.git',
           },
         },
         version: 3,
@@ -172,20 +183,19 @@ describe('sync', () => {
     })
 
     it('uses plural wording and counts up-to-date skills', async () => {
+      const docxEntry = {...skillEntry, skillPath: 'skills/docx/SKILL.md'}
       credMocks.readCredentials.mockResolvedValue(credentials)
       gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
       gistMocks.readGist.mockResolvedValue({
         ...remoteLockOne,
         skills: {
-          docx: {...skillEntry, skillPath: 'skills/docx/SKILL.md'},
+          docx: docxEntry,
           'frontend-design': skillEntry,
         },
       })
       lockMocks.readLockFileIfExists.mockResolvedValue({
-        dismissed: {},
-        lastSelectedAgents: [],
+        ...emptyLocalLock,
         skills: {'frontend-design': skillEntry},
-        version: 3,
       })
 
       const {cmd, logSpy} = makeCmd()
@@ -196,12 +206,13 @@ describe('sync', () => {
     })
 
     it('installs all remote skills when local lock is missing', async () => {
+      const docxEntry = {...skillEntry, skillPath: 'skills/docx/SKILL.md'}
       credMocks.readCredentials.mockResolvedValue(credentials)
       gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
       gistMocks.readGist.mockResolvedValue({
         ...remoteLockOne,
         skills: {
-          docx: {...skillEntry, skillPath: 'skills/docx/SKILL.md'},
+          docx: docxEntry,
           'frontend-design': skillEntry,
         },
       })
@@ -210,8 +221,59 @@ describe('sync', () => {
       const {cmd, logSpy} = makeCmd()
       await cmd.run()
 
-      expect(spawnMocks.spawn).toHaveBeenCalledTimes(2)
+      expect(spawnMocks.spawn).toHaveBeenCalledTimes(1)
+      expect(spawnMocks.spawn).toHaveBeenCalledWith(
+        'npx',
+        [
+          'skills',
+          'add',
+          'https://github.com/anthropics/skills.git',
+          '--skill',
+          'docx',
+          '--skill',
+          'frontend-design',
+          '-g',
+          '-y',
+        ],
+        expect.objectContaining({shell: process.platform === 'win32', stdio: 'inherit'}),
+      )
       expect(logSpy).toHaveBeenCalledWith('2 skills added, 0 already up to date')
+    })
+
+    it('groups two skills from the same sourceUrl into one spawn', async () => {
+      const docxEntry = {...skillEntry, skillPath: 'skills/docx/SKILL.md'}
+      credMocks.readCredentials.mockResolvedValue(credentials)
+      gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
+      gistMocks.readGist.mockResolvedValue({
+        dismissed: {},
+        lastSelectedAgents: [],
+        skills: {
+          docx: docxEntry,
+          'frontend-design': skillEntry,
+        },
+        version: 3,
+      })
+      lockMocks.readLockFileIfExists.mockResolvedValue(emptyLocalLock)
+
+      const {cmd} = makeCmd()
+      await cmd.run()
+
+      expect(spawnMocks.spawn).toHaveBeenCalledTimes(1)
+      expect(spawnMocks.spawn).toHaveBeenCalledWith(
+        'npx',
+        [
+          'skills',
+          'add',
+          'https://github.com/anthropics/skills.git',
+          '--skill',
+          'docx',
+          '--skill',
+          'frontend-design',
+          '-g',
+          '-y',
+        ],
+        expect.objectContaining({shell: process.platform === 'win32', stdio: 'inherit'}),
+      )
     })
 
     it('does not spawn when everything is up to date', async () => {
@@ -266,12 +328,7 @@ describe('sync', () => {
       credMocks.readCredentials.mockResolvedValue(credentials)
       gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
       gistMocks.readGist.mockResolvedValue(remoteLockOne)
-      lockMocks.readLockFileIfExists.mockResolvedValue({
-        dismissed: {},
-        lastSelectedAgents: [],
-        skills: {},
-        version: 3,
-      })
+      lockMocks.readLockFileIfExists.mockResolvedValue(emptyLocalLock)
       spawnMocks.spawn.mockImplementation(() => makeFakeChild(1))
 
       const {cmd} = makeCmd()

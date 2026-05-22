@@ -7,11 +7,12 @@ import {readCredentials, writeCredentials} from '../lib/credentials.js'
 import {findOrCreateGist, readGist} from '../lib/gist.js'
 import {readLockFileIfExists} from '../lib/lock-file.js'
 
-function runSkillsAdd(sourceUrl: string, skillName: string): Promise<void> {
+function runSkillsAdd(sourceUrl: string, skillNames: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
+    const skillFlags = skillNames.flatMap((name) => ['--skill', name])
     const child = spawn(
       'npx',
-      ['skills', 'add', sourceUrl, '--skill', skillName, '-g', '-y'],
+      ['skills', 'add', sourceUrl, ...skillFlags, '-g', '-y'],
       {
         shell: process.platform === 'win32',
         stdio: 'inherit',
@@ -66,24 +67,24 @@ export default class Sync extends Command {
 
     const missingNames = Object.keys(remoteSkills).filter((name) => !localKeys.has(name))
 
-    let added = 0
-    const installAt = async (index: number): Promise<void> => {
-      if (index >= missingNames.length) return
-      const name = missingNames[index]!
+    const groups = new Map<string, string[]>()
+    for (const name of missingNames) {
       const entry = remoteSkills[name] as SkillEntry | undefined
       if (!entry?.sourceUrl || !entry.skillPath) {
         throw new Error(`Remote lock entry for "${name}" is missing sourceUrl or skillPath.`)
       }
 
-      // Use the lock file entry key as the skill name (e.g. "vercel-react-best-practices"),
-      // not the folder derived from skillPath (e.g. "react-best-practices") — they can differ
-      // when the skill registry uses a vendor-prefixed name.
-      await runSkillsAdd(entry.sourceUrl, name)
-      added++
-      await installAt(index + 1)
+      const bucket = groups.get(entry.sourceUrl) ?? []
+      bucket.push(name)
+      groups.set(entry.sourceUrl, bucket)
     }
 
-    await installAt(0)
+    let added = 0
+    for (const [sourceUrl, skillNames] of groups) {
+      // eslint-disable-next-line no-await-in-loop
+      await runSkillsAdd(sourceUrl, skillNames)
+      added += skillNames.length
+    }
 
     const upToDate = Object.keys(remoteSkills).length - missingNames.length
     this.log(
