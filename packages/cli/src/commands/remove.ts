@@ -1,40 +1,12 @@
 import {Args, Command} from '@oclif/core'
 import {Listr} from 'listr2'
-import {spawn} from 'node:child_process'
+import {rm} from 'node:fs/promises'
+import {homedir} from 'node:os'
+import {dirname, join} from 'node:path'
 
 import {readCredentials, writeCredentials} from '../lib/credentials.js'
 import {findOrCreateGist, writeGist} from '../lib/gist.js'
 import {readLockFile, writeLockFile} from '../lib/lock-file.js'
-
-export function runSkillsRm(skillPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn('npx', ['skills', 'rm', skillPath], {
-      shell: process.platform === 'win32',
-      stdio: 'pipe',
-    })
-
-    let output = ''
-    child.stdout?.on('data', (chunk: Buffer) => {
-      output += chunk.toString()
-    })
-    child.stderr?.on('data', (chunk: Buffer) => {
-      output += chunk.toString()
-    })
-
-    child.on('error', reject)
-    child.on('close', (code, signal) => {
-      if (code === 0) {
-        resolve()
-        return
-      }
-
-      const msg = signal
-        ? `npx skills rm exited with signal ${signal}`
-        : `npx skills rm exited with code ${code}`
-      reject(Object.assign(new Error(msg), {output}))
-    })
-  })
-}
 
 export default class Remove extends Command {
   static args = {
@@ -62,7 +34,8 @@ export default class Remove extends Command {
       [
         {
           async task(_, wrapper) {
-            await runSkillsRm(entry.skillPath)
+            const skillDir = join(homedir(), '.agents', dirname(entry.skillPath))
+            await rm(skillDir, {force: true, recursive: true})
             wrapper.title = `removed ${skillName}`
           },
           title: `removing ${skillName}`,

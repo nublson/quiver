@@ -1,5 +1,5 @@
-import type {ChildProcess} from 'node:child_process'
-
+import {homedir} from 'node:os'
+import {dirname, join} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 const credMocks = vi.hoisted(() => ({
@@ -17,8 +17,8 @@ const gistMocks = vi.hoisted(() => ({
   writeGist: vi.fn().mockResolvedValue(),
 }))
 
-const spawnMocks = vi.hoisted(() => ({
-  spawn: vi.fn(),
+const fsMocks = vi.hoisted(() => ({
+  rm: vi.fn().mockResolvedValue(),
 }))
 
 vi.mock('../../src/lib/credentials.js', () => ({
@@ -36,8 +36,8 @@ vi.mock('../../src/lib/gist.js', () => ({
   writeGist: gistMocks.writeGist,
 }))
 
-vi.mock('node:child_process', () => ({
-  spawn: spawnMocks.spawn,
+vi.mock('node:fs/promises', () => ({
+  rm: fsMocks.rm,
 }))
 
 const {default: Remove} = await import('../../src/commands/remove.js')
@@ -72,22 +72,6 @@ const lockWithSkill = {
   version: 3,
 }
 
-function makeFakeChild(closeCode: null | number, signal: NodeJS.Signals | null = null): ChildProcess {
-  return {
-    on(event: string, listener: (...args: unknown[]) => void) {
-      if (event === 'close') {
-        queueMicrotask(() => {
-          listener(closeCode, signal)
-        })
-      }
-    },
-  } as ChildProcess
-}
-
-function stubSpawnSuccess() {
-  spawnMocks.spawn.mockImplementation(() => makeFakeChild(0))
-}
-
 function makeCmd(argv: string[] = ['frontend-design']) {
   const config = {runHook: vi.fn().mockResolvedValue({failures: [], successes: []})} as unknown as Parameters<typeof Remove>[1]
   const cmd = new Remove(argv, config)
@@ -101,14 +85,13 @@ function makeCmd(argv: string[] = ['frontend-design']) {
 describe('remove', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    stubSpawnSuccess()
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('removes skill from lock, writes lock, and pushes', async () => {
+  it('removes skill directory from ~/.agents, writes lock, and pushes', async () => {
     credMocks.readCredentials.mockResolvedValue(credentials)
     lockMocks.readLockFile.mockResolvedValue({...lockWithSkill, skills: {'frontend-design': skillEntry}})
     gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
@@ -116,11 +99,8 @@ describe('remove', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(spawnMocks.spawn).toHaveBeenCalledWith(
-      'npx',
-      ['skills', 'rm', 'skills/frontend-design/SKILL.md'],
-      expect.objectContaining({shell: process.platform === 'win32', stdio: 'pipe'}),
-    )
+    const expectedDir = join(homedir(), '.agents', dirname(skillEntry.skillPath))
+    expect(fsMocks.rm).toHaveBeenCalledWith(expectedDir, {force: true, recursive: true})
 
     const writtenLock = lockMocks.writeLockFile.mock.calls[0][0]
     expect(writtenLock.skills['frontend-design']).toBeUndefined()
@@ -131,13 +111,12 @@ describe('remove', () => {
 
   it('errors when skill is not in lock file', async () => {
     credMocks.readCredentials.mockResolvedValue(credentials)
-    gistMocks.findOrCreateGist.mockResolvedValue(GIST_ID)
     lockMocks.readLockFile.mockResolvedValue({dismissed: {}, lastSelectedAgents: [], skills: {}, version: 3})
 
     const {cmd, errorSpy} = makeCmd()
     await expect(cmd.run()).rejects.toThrow()
     expect(errorSpy).toHaveBeenCalledWith('Skill "frontend-design" not found in lock file.')
-    expect(spawnMocks.spawn).not.toHaveBeenCalled()
+    expect(fsMocks.rm).not.toHaveBeenCalled()
   })
 
   it('errors when not logged in', async () => {
@@ -156,13 +135,13 @@ describe('remove', () => {
     expect(errorSpy).toHaveBeenCalledWith('Run `quiver login` first.')
   })
 
-  it('propagates npx skills rm failure', async () => {
+  it('propagates fs.rm failure and skips lock/gist updates', async () => {
     credMocks.readCredentials.mockResolvedValue(credentials)
     lockMocks.readLockFile.mockResolvedValue({...lockWithSkill, skills: {'frontend-design': skillEntry}})
-    spawnMocks.spawn.mockImplementation(() => makeFakeChild(1))
+    fsMocks.rm.mockRejectedValue(new Error('permission denied'))
 
     const {cmd} = makeCmd()
-    await expect(cmd.run()).rejects.toThrow('npx skills rm exited with code 1')
+    await expect(cmd.run()).rejects.toThrow('permission denied')
     expect(lockMocks.writeLockFile).not.toHaveBeenCalled()
     expect(gistMocks.writeGist).not.toHaveBeenCalled()
   })
