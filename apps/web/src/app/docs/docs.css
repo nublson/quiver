@@ -293,6 +293,8 @@
   border-bottom: 1px solid var(--line);
   vertical-align: top;
   color: var(--fg-mute);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .docs-main tr:last-child td {
   border-bottom: none;
@@ -304,7 +306,6 @@
 }
 .docs-main td:nth-child(2) {
   color: var(--blue);
-  white-space: nowrap;
 }
 
 /* ─── Pager ───────────────────────────────────────────────────────────────── */
