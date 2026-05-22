@@ -62,7 +62,7 @@ const lockFileTwoSkills = {
   ...lockFile,
   skills: {
     ...lockFile.skills,
-    'docx': {...lockFile.skills['frontend-design']},
+    docx: {...lockFile.skills['frontend-design']},
   },
 }
 
@@ -95,7 +95,7 @@ describe('push command', () => {
     expect(gistMocks.findOrCreateGist).toHaveBeenCalledWith(GITHUB_TOKEN)
     expect(gistMocks.writeGist).toHaveBeenCalledWith(GIST_ID, lockFile, GITHUB_TOKEN)
     expect(credMocks.writeCredentials).not.toHaveBeenCalled()
-    expect(logSpy).toHaveBeenCalledWith(expect.stringMatching(/^Pushed 1 skill • /))
+    expect(logSpy).toHaveBeenCalledWith('1 skill pushed')
   })
 
   it('uses plural wording for multiple skills', async () => {
@@ -106,7 +106,7 @@ describe('push command', () => {
     const {cmd, logSpy} = makeCmd()
     await cmd.run()
 
-    expect(logSpy).toHaveBeenCalledWith(expect.stringMatching(/^Pushed 2 skills • /))
+    expect(logSpy).toHaveBeenCalledWith('2 skills pushed')
   })
 
   it('persists gistId when credentials are missing it', async () => {
@@ -169,9 +169,8 @@ describe('push command', () => {
       new Error('No global skills found. Install skills with `npx skills add -g` first.'),
     )
 
-    const {cmd, errorSpy} = makeCmd()
-    await expect(cmd.run()).rejects.toThrow()
-    expect(errorSpy).toHaveBeenCalledWith(
+    const {cmd} = makeCmd()
+    await expect(cmd.run()).rejects.toThrow(
       'No global skills found. Install skills with `npx skills add -g` first.',
     )
   })

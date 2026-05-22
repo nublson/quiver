@@ -1,37 +1,12 @@
 import {Args, Command} from '@oclif/core'
-import {spawn} from 'node:child_process'
+import {Listr} from 'listr2'
+import {rm} from 'node:fs/promises'
+import {homedir} from 'node:os'
+import {dirname, join} from 'node:path'
 
 import {readCredentials, writeCredentials} from '../lib/credentials.js'
 import {findOrCreateGist, writeGist} from '../lib/gist.js'
 import {readLockFile, writeLockFile} from '../lib/lock-file.js'
-
-export function runSkillsRm(skillPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      'npx',
-      ['skills', 'rm', skillPath],
-      {
-        shell: process.platform === 'win32',
-        stdio: 'inherit',
-      },
-    )
-    child.on('error', reject)
-    child.on('close', (code, signal) => {
-      if (code === 0) {
-        resolve()
-        return
-      }
-
-      reject(
-        new Error(
-          signal
-            ? `npx skills rm exited with signal ${signal}`
-            : `npx skills rm exited with code ${code}`,
-        ),
-      )
-    })
-  })
-}
 
 export default class Remove extends Command {
   static args = {
@@ -50,24 +25,52 @@ export default class Remove extends Command {
     }
 
     const lock = await readLockFile()
-
     const entry = lock.skills?.[skillName]
     if (!entry) {
       this.error(`Skill "${skillName}" not found in lock file.`)
     }
 
-    await runSkillsRm(entry.skillPath)
+    const tasks = new Listr(
+      [
+        {
+          async task(_, wrapper) {
+            const skillDir = join(homedir(), '.agents', dirname(entry.skillPath))
+            await rm(skillDir, {force: true, recursive: true})
+            wrapper.title = `removed ${skillName}`
+          },
+          title: `removing ${skillName}`,
+        },
+        {
+          async task(_, wrapper) {
+            delete lock.skills[skillName]
+            await writeLockFile(lock)
+            wrapper.title = 'lock file updated'
+          },
+          title: 'updating lock file',
+        },
+        {
+          async task(_, wrapper) {
+            const gistId = await findOrCreateGist(creds.githubToken)
+            if (creds.gistId !== gistId) {
+              await writeCredentials({...creds, gistId})
+            }
 
-    delete lock.skills[skillName]
-    await writeLockFile(lock)
+            await writeGist(gistId, lock, creds.githubToken)
+            wrapper.title = `pushed to gist · @${creds.username}`
+          },
+          title: `pushing to gist · @${creds.username}`,
+        },
+      ],
+      {concurrent: false},
+    )
 
-    const gistId = await findOrCreateGist(creds.githubToken)
-    if (creds.gistId !== gistId) {
-      await writeCredentials({...creds, gistId})
+    try {
+      await tasks.run()
+    } catch (error) {
+      const cause = (error as {errors?: Error[]}).errors?.[0] ?? error
+      throw cause
     }
 
-    await writeGist(gistId, lock, creds.githubToken)
-
-    this.log(`Removed ${skillName} and pushed updated lock`)
+    this.log(`removed ${skillName}`)
   }
 }
