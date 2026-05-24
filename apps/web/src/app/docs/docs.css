@@ -85,53 +85,6 @@
   color: var(--fg-mute);
 }
 
-.docs-header {
-  padding-bottom: 28px;
-  margin-bottom: 40px;
-  border-bottom: 1px solid var(--line);
-}
-
-
-.docs-header h1 {
-  font-family: var(--font-jetbrains-mono);
-  font-size: clamp(32px, 4vw, 48px);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  color: var(--fg);
-  margin-bottom: 14px;
-  text-wrap: balance;
-}
-
-.docs-header .lede {
-  font-size: 18px;
-  line-height: 1.55;
-  color: var(--fg-mute);
-  max-width: 56ch;
-  text-wrap: pretty;
-}
-
-.docs-header .meta {
-  display: flex;
-  gap: 18px;
-  margin-top: 22px;
-  font-family: var(--font-jetbrains-mono);
-  font-size: 11.5px;
-  color: var(--fg-dim);
-  letter-spacing: 0.02em;
-  flex-wrap: wrap;
-}
-.docs-header .meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.docs-header .meta .k {
-  color: var(--fg-dim);
-}
-.docs-header .meta .v {
-  color: var(--fg-mute);
-}
 
 /* ─── Prose ───────────────────────────────────────────────────────────────── */
 .docs-main p {
@@ -169,14 +122,6 @@
 }
 .docs-main a:hover {
   border-bottom-color: var(--accent);
-}
-/* Header sits inside docs-main but should not inherit prose link styles */
-.docs-header a {
-  color: var(--fg-dim);
-  border-bottom: none;
-}
-.docs-header a:hover {
-  color: var(--fg-mute);
 }
 
 .docs-main ul,
