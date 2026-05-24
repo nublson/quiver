@@ -1,20 +1,16 @@
 "use client";
 
+import { RELEASES as RELEASE_DATA } from "@/lib/changelog-data";
 import { useEffect, useRef, useState } from "react";
 
-const RELEASES = [
-  { id: "v0-2-4", version: "0.2.4", date: "May 18" },
-  { id: "v0-2-3", version: "0.2.3", date: "Apr 30" },
-  { id: "v0-2-2", version: "0.2.2", date: "Apr 14" },
-  { id: "v0-2-1", version: "0.2.1", date: "Mar 28" },
-  { id: "v0-2-0", version: "0.2.0", date: "Mar 10" },
-  { id: "v0-1-2", version: "0.1.2", date: "Feb 22" },
-  { id: "v0-1-1", version: "0.1.1", date: "Feb 05" },
-  { id: "v0-1-0", version: "0.1.0", date: "Jan 22" },
-];
+const RELEASES = RELEASE_DATA.map(({ id, version, date }) => ({
+  id,
+  version,
+  date: date.split(",")[0], // "May 22, 2026" → "May 22"
+}));
 
 export default function ChangelogRail() {
-  const [activeId, setActiveId] = useState("v0-2-4");
+  const [activeId, setActiveId] = useState(RELEASES[0]?.id ?? "");
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
