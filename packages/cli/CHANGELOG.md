@@ -1,5 +1,11 @@
 # quiver
 
+## 0.2.7
+
+### Patch Changes
+
+- 243feb4: Merge pull request #29 from nublson/feat/whoami-command
+
 ## 0.2.6
 
 ### Patch Changes
