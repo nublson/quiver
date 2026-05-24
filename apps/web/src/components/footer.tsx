@@ -73,9 +73,9 @@ export default function Footer() {
             <Link href="/docs" style={{ transition: "color 0.12s" }}>
               docs
             </Link>
-            <a href="#" style={{ transition: "color 0.12s" }}>
+            <Link href="/changelog" style={{ transition: "color 0.12s" }}>
               changelog
-            </a>
+            </Link>
           </div>
         </div>
       </div>
