@@ -10,11 +10,14 @@ const RELEASES = RELEASE_DATA.map(({ id, version, date }) => ({
 }));
 
 export default function ChangelogRail() {
-  const [activeId, setActiveId] = useState(RELEASES[0]?.id ?? "");
+  const [activeId, setActiveId] = useState(
+    () => (typeof window !== "undefined" && location.hash)
+      ? location.hash.slice(1)
+      : (RELEASES[0]?.id ?? "")
+  );
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    if (location.hash) setActiveId(location.hash.slice(1));
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
