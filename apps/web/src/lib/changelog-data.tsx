@@ -2,9 +2,41 @@ import type { Release } from "@/lib/changelog";
 
 export const RELEASES: Release[] = [
   {
+    id: "v0-2-7",
+    version: "0.2.7",
+    tag: "latest",
+    sha: "3b54ed1",
+    date: "May 24, 2026",
+    bumpLabel: "patch · 1 change",
+    stats: { add: 1 },
+    summary: (
+      <>
+        Adds <code>quiver whoami</code> — prints the authenticated GitHub
+        username and linked Gist ID without leaving the terminal.
+      </>
+    ),
+    sections: [
+      {
+        type: "add",
+        label: "added",
+        entries: [
+          {
+            type: "add",
+            text: (
+              <>
+                <code>quiver whoami</code> — reads{" "}
+                <code>~/.quiver/credentials.json</code> and prints the
+                authenticated GitHub username and Gist ID.
+              </>
+            ),
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: "v0-2-6",
     version: "0.2.6",
-    tag: "latest",
     sha: "0581f70",
     date: "May 22, 2026",
     bumpLabel: "patch · 3 changes",
