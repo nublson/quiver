@@ -107,7 +107,8 @@ export default function Nav() {
               cursor: "pointer",
             }}
           >
-            <RiGithubFill size={16} /> github
+            <RiGithubFill size={16} />
+            <span className="nav-github-label">github</span>
           </a>
           <a
             href="https://www.npmjs.com/package/usequiver"

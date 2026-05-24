@@ -1,12 +1,12 @@
-import { source } from "@/lib/source";
-import type { Root as PageTreeRoot, Node } from "fumadocs-core/page-tree";
-import type { TOCItemType } from "fumadocs-core/toc";
-import Link from "next/link";
-import DocsTOC from "./toc";
 import Callout from "@/components/docs/callout";
 import CmdRef from "@/components/docs/cmd-ref";
-import Terminal from "@/components/docs/terminal";
 import { CodeBlock, Pre } from "@/components/docs/code-block";
+import Terminal from "@/components/docs/terminal";
+import { source } from "@/lib/source";
+import type { Node, Root as PageTreeRoot } from "fumadocs-core/page-tree";
+import type { TOCItemType } from "fumadocs-core/toc";
+import PageBreadcrumb from "@/components/page-breadcrumb";
+import DocsTOC from "./toc";
 
 /** Derive a unique anchor from a page's slug array. */
 function pageAnchor(slugs: string[]): string {
@@ -21,7 +21,7 @@ type PageEntry = ReturnType<typeof source.getPages>[number];
  */
 function getOrderedPages(
   tree: PageTreeRoot,
-  pageMap: Map<string, PageEntry>
+  pageMap: Map<string, PageEntry>,
 ): PageEntry[] {
   const ordered: PageEntry[] = [];
 
@@ -51,8 +51,7 @@ export default async function DocsPage() {
 
   const toc: TOCItemType[] = allPages.map((page) => {
     // Nest sub-pages whose parent folder has its own index page (e.g. commands/*)
-    const parentUrl =
-      page.slugs.length > 1 ? `/docs/${page.slugs[0]}` : null;
+    const parentUrl = page.slugs.length > 1 ? `/docs/${page.slugs[0]}` : null;
     const isNested = parentUrl !== null && pageMap.has(parentUrl);
     return {
       title: page.data.title,
@@ -65,17 +64,13 @@ export default async function DocsPage() {
     <div className="docs-content-shell">
       <main className="docs-main">
         {/* Page-level header */}
-        <div className="docs-header">
-          <nav className="docs-breadcrumb" aria-label="breadcrumb">
-            <Link href="/">~/</Link>
-            <span className="sep">/</span>
-            <span className="current">docs</span>
-          </nav>
+        <header className="docs-header">
+          <PageBreadcrumb label="docs" />
           <h1>Documentation</h1>
           {rootPage?.data.description && (
             <p className="lede">{rootPage.data.description}</p>
           )}
-        </div>
+        </header>
 
         {/* All pages rendered as scrollable sections */}
         {allPages.map((page) => {
@@ -94,9 +89,9 @@ export default async function DocsPage() {
                     <CodeBlock
                       title={title}
                       lang={
-                        (props as Record<string, unknown>)[
-                          "data-language"
-                        ] as string | undefined
+                        (props as Record<string, unknown>)["data-language"] as
+                          | string
+                          | undefined
                       }
                     >
                       <Pre>{children}</Pre>
