@@ -42,7 +42,6 @@ export default function ChangelogPage() {
         {/* ── Header ── */}
         <header className="docs-header">
           <PageBreadcrumb label="changelog" />
-
           <h1>
             What&apos;s <span style={{ color: "var(--accent)" }}>new</span> in
             Quiver
@@ -89,7 +88,7 @@ export default function ChangelogPage() {
         </header>
 
         {/* ── Unreleased / next ── */}
-        <ChangelogUnreleased />
+        {/* <ChangelogUnreleased /> */}
 
         {/* ── Release stream ── */}
         {RELEASES.map((release) => (
