@@ -77,11 +77,11 @@ export default function Nav() {
           <a href="#how" style={{ transition: "color 0.12s" }}>
             how it works
           </a>
-          <a href="#why" style={{ transition: "color 0.12s" }}>
-            why
-          </a>
           <Link href="/docs" style={{ transition: "color 0.12s" }}>
             docs
+          </Link>
+          <Link href="/changelog" style={{ transition: "color 0.12s" }}>
+            changelog
           </Link>
         </div>
 
