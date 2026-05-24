@@ -123,6 +123,8 @@
 .docs-main a:hover {
   border-bottom-color: var(--accent);
 }
+.docs-main .docs-header a       { color: var(--fg-dim); border-bottom: none; }
+.docs-main .docs-header a:hover { color: var(--fg-mute); }
 
 .docs-main ul,
 .docs-main ol {
