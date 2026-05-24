@@ -40,38 +40,15 @@ export default function ChangelogPage() {
 
       <main style={{ minWidth: 0 }}>
         {/* ── Header ── */}
-        <header
-          style={{
-            borderBottom: "1px solid var(--line)",
-            paddingBottom: 32,
-            marginBottom: 56,
-          }}
-        >
+        <header className="docs-header">
           <PageBreadcrumb label="changelog" />
 
-          <h1
-            style={{
-              fontFamily: "var(--font-jetbrains-mono)",
-              fontSize: "clamp(36px, 4.4vw, 56px)",
-              fontWeight: 600,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.04,
-              color: "var(--fg)",
-              marginBottom: 16,
-            }}
-          >
+          <h1>
             What&apos;s <span style={{ color: "var(--accent)" }}>new</span> in
             Quiver
           </h1>
 
-          <p
-            style={{
-              fontSize: 17,
-              lineHeight: 1.55,
-              color: "var(--fg-mute)",
-              maxWidth: "60ch",
-            }}
-          >
+          <p>
             Every release that&apos;s shipped to npm, with the diff you&apos;d
             actually care about — new commands, breaking changes, and the small
             things that made <code style={entryCodeStyle}>quiver sync</code> a
