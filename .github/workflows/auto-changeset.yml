@@ -1,18 +1,31 @@
 name: Auto Changeset
 
+# Writes a changeset for each change to the usequiver package that lands on
+# develop (see .github/scripts/auto-changeset.sh), so the next Release can bump
+# the version and write the changelog. Same as nublson/notionic's: one
+# changeset per pull request, its title as the changelog line.
+
 on:
   push:
     branches:
       - develop
 
+concurrency:
+  group: auto-changeset
+  cancel-in-progress: false
+
 jobs:
   auto-changeset:
     name: 📝 Auto Changeset
     runs-on: ubuntu-latest
-    # Skip if this push was made by the bot itself (prevents commit loop)
-    if: github.actor != 'github-actions[bot]'
+    # Skip this workflow's and the release's own commits.
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      !startsWith(github.event.head_commit.message, 'chore: add changesets') &&
+      !startsWith(github.event.head_commit.message, 'chore: version packages')
     permissions:
       contents: write
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,44 +33,22 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Detect CLI changes and existing changeset
-        id: check
-        run: |
-          CLI_CHANGED=$(git diff --name-only ${{ github.event.before }}..${{ github.sha }} | grep '^packages/cli/' | head -1)
-          CHANGESET_EXISTS=$(ls .changeset/*.md 2>/dev/null | grep -v README | head -1)
-          echo "cli_changed=${CLI_CHANGED}" >> "$GITHUB_OUTPUT"
-          echo "changeset_exists=${CHANGESET_EXISTS}" >> "$GITHUB_OUTPUT"
-
-      - name: Create changeset
-        if: steps.check.outputs.cli_changed != '' && steps.check.outputs.changeset_exists == ''
+      - name: Write changesets
+        id: changesets
         env:
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
-        run: |
-          FIRST_LINE=$(printf '%s' "$COMMIT_MSG" | head -1)
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/auto-changeset.sh
 
-          if printf '%s' "$FIRST_LINE" | grep -qE '^feat(\([^)]*\))?!:|^[^:]+!:'; then
-            BUMP="major"
-          elif printf '%s' "$FIRST_LINE" | grep -qE '^feat(\([^)]*\))?:'; then
-            BUMP="minor"
-          else
-            BUMP="patch"
-          fi
-
-          DESCRIPTION=$(printf '%s' "$FIRST_LINE" | sed -E 's/^[a-z]+(\([^)]*\))?!?: //')
-          SLUG=$(printf '%s' "$DESCRIPTION" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/-$//' | cut -c1-50)
-
-          {
-            printf -- '---\n'
-            printf '"usequiver": %s\n' "$BUMP"
-            printf -- '---\n\n'
-            printf '%s\n' "$DESCRIPTION"
-          } > ".changeset/${SLUG}.md"
-
-      - name: Commit and push changeset
-        if: steps.check.outputs.cli_changed != '' && steps.check.outputs.changeset_exists == ''
+      - name: Commit and push changesets
+        if: steps.changesets.outputs.count != '0'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .changeset/
-          git commit -m "chore: add changeset"
+          git commit -m "chore: add changesets"
+          # Another merge may have landed while this ran.
+          git pull --rebase origin develop
           git push origin develop
