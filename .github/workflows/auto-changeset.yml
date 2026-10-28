@@ -10,9 +10,9 @@ on:
     branches:
       - develop
 
-concurrency:
-  group: auto-changeset
-  cancel-in-progress: false
+# No concurrency group: GitHub keeps only one pending run per group, so a burst
+# of merges would drop a push's run and its changeset. Runs overlap instead, and
+# each one rebases onto the others' commits before pushing.
 
 jobs:
   auto-changeset:
@@ -49,6 +49,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .changeset/
           git commit -m "chore: add changesets"
-          # Another merge may have landed while this ran.
-          git pull --rebase origin develop
-          git push origin develop
+          # Another merge, or another run's changesets, may have landed meanwhile.
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin develop && git push origin develop && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1
