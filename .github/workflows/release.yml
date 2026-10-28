@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "pnpm"
 
       - name: Install dependencies
@@ -37,6 +37,9 @@ jobs:
 
       - name: Bump version and update changelog
         id: bump
+        env:
+          # @changesets/changelog-github looks up each entry's PR, commit and author.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PREVIOUS=$(node -p "require('./packages/cli/package.json').version")
           pnpm changeset version
@@ -109,7 +112,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "pnpm"
 
       - name: Install dependencies
@@ -154,7 +157,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 

@@ -1,59 +1,38 @@
-import Footer from "@/components/footer";
-import Nav from "@/components/nav";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+import { Geist, Geist_Mono } from "next/font/google";
+import type { ReactNode } from "react";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+const TITLE = "Quiver: Keep your AI agent skills in sync across every device";
 
 export const metadata: Metadata = {
-  title: "Quiver — Keep your AI agent skills in sync across every device",
-  description:
-    "Quiver is a CLI sync layer for AI agent skills. Push from one machine, run quiver sync on the next. GitHub-native. Agent-agnostic. Open source.",
-  metadataBase: new URL("https://quiver.nublson.com"),
-  openGraph: {
-    title: "Quiver — Keep your AI agent skills in sync across every device",
-    description:
-      "Quiver is a CLI sync layer for AI agent skills. Push from one machine, run quiver sync on the next. GitHub-native. Agent-agnostic. Open source.",
-    url: "https://quiver.nublson.com",
-    siteName: "Quiver",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Quiver — Keep your AI agent skills in sync across every device",
-    description:
-      "Quiver is a CLI sync layer for AI agent skills. Push from one machine, run quiver sync on the next. GitHub-native. Agent-agnostic. Open source.",
-  },
+  metadataBase: new URL(SITE_URL),
+  title: { default: TITLE, template: "%s · Quiver" },
+  description: SITE_DESCRIPTION,
+  applicationName: "Quiver",
+  alternates: { canonical: "/" },
+  openGraph: { siteName: "Quiver", type: "website", url: "/" },
+  twitter: { card: "summary_large_image" },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={cn("font-sans", geist.variable, geistMono.variable)}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
-        <Nav />
-        <main className="flex flex-col flex-1">
-          <div className="grid-bg" />
+      <body className="antialiased">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
-        </main>
-        <Footer />
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

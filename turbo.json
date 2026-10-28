@@ -5,6 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": ["NOTION_TOKEN", "NOTION_PAGE_ID", "NOTION_DOCS_DATA_SOURCE_ID"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**", "oclif.manifest.json"]
     },
     "lint": {

@@ -69,7 +69,7 @@ quiver sync
 | Layer | Choice |
 |---|---|
 | CLI | TypeScript + oclif |
-| Web + Docs | Next.js 16 + Tailwind v4 + Fumadocs |
+| Web + Docs | Next.js 16 + Tailwind v4 + shadcn/ui + notionic (Notion as CMS) |
 | Storage | GitHub Gist (one secret Gist per user) |
 | Auth | GitHub OAuth device flow (RFC 8628) |
 | Deploy | Vercel (web) + npm (CLI) |
@@ -81,7 +81,7 @@ quiver sync
 
 ```
 quiver/
-  apps/web/        # Next.js — marketing + docs (purely static)
+  apps/web/        # Next.js — marketing and docs (content in Notion), changelog
   packages/cli/    # quiver CLI (oclif + TypeScript)
 ```
 

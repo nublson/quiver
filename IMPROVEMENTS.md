@@ -44,7 +44,7 @@ Show a `quiver push` / `quiver sync` terminal animation to make the value prop i
 Currently shows the raw Gist ID. Linking to `https://gist.github.com/<username>/<gistId>` would let users verify their data in the browser directly.
 
 ### Docs page for `quiver upgrade`
-When the upgrade command ships, `apps/web/src/app/docs/commands/` will need a corresponding page.
+When the upgrade command ships, the Notion docs database will need an `upgrade` page (Section: Commands).
 
 ---
 

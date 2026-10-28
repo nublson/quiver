@@ -26,7 +26,7 @@ Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, 
 |---|---|
 | Monorepo | Turborepo |
 | CLI | TypeScript + oclif |
-| Web + Docs | Next.js + Tailwind + Fumadocs (purely static — no API routes) |
+| Web + Docs | Next.js + Tailwind + shadcn/ui + [notionic](https://notionic.dev) — content lives in Notion |
 | API | Hono — better-auth only (auth-only, no lock data) |
 | Auth | better-auth (GitHub OAuth), runs in `apps/api` |
 | Storage | GitHub Gist (one secret Gist per user, managed by the CLI) |
@@ -38,7 +38,7 @@ Quiver is a **sync layer**: it reads the lock file that `npx skills` maintains, 
 ```
 quiver/
   apps/
-    web/        # Next.js — marketing (/) + docs (/docs), purely static
+    web/        # Next.js — marketing (/) and docs (/docs) from Notion, changelog from packages/cli/CHANGELOG.md
     api/        # Hono — better-auth only (auth)
   packages/
     cli/        # TypeScript + oclif
@@ -198,8 +198,8 @@ Running `npx skills rm` removes skill files but leaves stale entries in `~/.agen
 **Sync is additive only (v1).**
 Quiver never deletes or overwrites local skills during sync. Conflict resolution is out of scope for v1.
 
-**`apps/api` is auth-only; `apps/web` is purely static.**
-The web app (Next.js) contains no API routes — it is marketing and docs only. `apps/api` (Hono) handles only authentication via better-auth. There are no lock storage or sync event endpoints — the CLI talks directly to the GitHub Gist API for all skill data. This keeps the backend surface area minimal and removes the need for any database tables beyond what better-auth requires.
+**`apps/api` is auth-only; `apps/web` renders Notion.**
+The web app (Next.js) is marketing and docs, written in Notion and rendered with notionic: the landing page body (`NOTION_PAGE_ID`) and the docs database (`NOTION_DOCS_DATA_SOURCE_ID`), read with `NOTION_TOKEN`. The changelog (`/changelog`) renders `packages/cli/CHANGELOG.md`, as notionic.dev does. Pages are prerendered and refreshed hourly (ISR). Its only API routes serve Notion: `/api/notion/revalidate` (instant refresh from a Notion webhook or by hand) and `/api/notion/file/[blockId]` (re-signs files uploaded to Notion). `apps/api` (Hono) handles only authentication via better-auth. There are no lock storage or sync event endpoints — the CLI talks directly to the GitHub Gist API for all skill data. This keeps the backend surface area minimal and removes the need for any database tables beyond what better-auth requires.
 
 **GitHub Gist is the storage backend.**
 Each user's lock file lives in a single secret Gist named `quiver-skill-lock.json`. The CLI manages it directly using the GitHub token obtained during login (with `gist` scope). No server proxy, no database table. Gist revision history provides a free audit log of every push.
@@ -215,12 +215,15 @@ Quiver uses **Changesets** (`@changesets/cli`) for versioning, changelog generat
 
 ### Daily workflow
 
-```bash
-# after making changes, describe what changed and pick a bump type
-pnpm changeset        # patch | minor | major
+Each pull request into `develop` that changes `packages/cli/src` or `bin` (not its tests) gets a changeset when it lands, written by `.github/workflows/auto-changeset.yml` (`.github/scripts/auto-changeset.sh`) from the PR title, as on notionic:
 
-# commit the generated .changeset/*.md file with your PR
-```
+| PR title | Bump | Changelog line |
+|---|---|---|
+| `fix(cli): handle empty lock files` | patch | Handle empty lock files |
+| `feat(cli): add whoami command` | minor | Add whoami command |
+| `feat!: rename sync flags` | major (minor before 1.0) | Rename sync flags |
+
+`@changesets/changelog-github` links each line to its PR and commit and credits its author. To write the entry yourself, run `pnpm changeset` in the pull request; the workflow then keeps yours.
 
 ### Publishing
 
@@ -236,8 +239,8 @@ Only `packages/cli` is published. `apps/web` and `apps/api` are excluded automat
 | File | Purpose |
 |---|---|
 | `.changeset/config.json` | Changesets config (scope: `packages/cli` only) |
-| `.changeset/*.md` | Per-PR change descriptions (committed, consumed on publish) |
-| `packages/cli/CHANGELOG.md` | Auto-generated; also used as the GitHub release body |
+| `.changeset/*.md` | Per-PR change descriptions (written by Auto Changeset or by hand, consumed on release) |
+| `packages/cli/CHANGELOG.md` | Written by `changeset version`; rendered at `/changelog` on the site and used as the GitHub release body |
 
 ---
 
